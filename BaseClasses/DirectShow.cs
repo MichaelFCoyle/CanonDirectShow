@@ -940,10 +940,10 @@ namespace DirectShow
         /// </summary>
         public DsRect()
         {
-            this.left = 0;
-            this.top = 0;
-            this.right = 0;
-            this.bottom = 0;
+            left = 0;
+            top = 0;
+            right = 0;
+            bottom = 0;
         }
 
         /// <summary>
@@ -980,32 +980,21 @@ namespace DirectShow
         /// Provide de string representation of this DsRect instance
         /// </summary>
         /// <returns>A string formated like this : [left, top - right, bottom]</returns>
-        public override string ToString()
-        {
-            return string.Format("[{0}, {1} - {2}, {3}]", this.left, this.top, this.right, this.bottom);
-        }
+        public override string ToString() => string.Format("[{0}, {1} - {2}, {3}]", left, top, right, bottom);
 
-        public override int GetHashCode()
-        {
-            return this.left.GetHashCode() |
-                this.top.GetHashCode() |
-                this.right.GetHashCode() |
-                this.bottom.GetHashCode();
-        }
+        public override int GetHashCode() => left.GetHashCode() | top.GetHashCode() | right.GetHashCode() | bottom.GetHashCode();
 
         public override bool Equals(object obj)
         {
             if (obj is DsRect)
             {
                 DsRect cmp = (DsRect)obj;
-
                 return right == cmp.right && bottom == cmp.bottom && left == cmp.left && top == cmp.top;
             }
 
             if (obj is Rectangle)
             {
                 Rectangle cmp = (Rectangle)obj;
-
                 return right == cmp.Right && bottom == cmp.Bottom && left == cmp.Left && top == cmp.Top;
             }
 
@@ -1026,10 +1015,7 @@ namespace DirectShow
         /// </summary>
         /// <param name="r">a DsRect to be cast</param>
         /// <returns>A casted System.Drawing.Rectangle</returns>
-        public static implicit operator Rectangle(DsRect r)
-        {
-            return r.ToRectangle();
-        }
+        public static implicit operator Rectangle(DsRect r) => r.ToRectangle();
 
         /// <summary>
         /// Define implicit cast between System.Drawing.Rectangle and DirectShowLib.DsRect for languages supporting this feature.
@@ -1045,34 +1031,22 @@ namespace DirectShow
         /// </summary>
         /// <param name="r">A System.Drawing.Rectangle to be cast</param>
         /// <returns>A casted DsRect</returns>
-        public static implicit operator DsRect(Rectangle r)
-        {
-            return new DsRect(r);
-        }
+        public static implicit operator DsRect(Rectangle r) => new DsRect(r);
 
         /// <summary>
         /// Get the System.Drawing.Rectangle equivalent to this DirectShowLib.DsRect instance.
         /// </summary>
         /// <returns>A System.Drawing.Rectangle</returns>
-        public Rectangle ToRectangle()
-        {
-            return new Rectangle(this.left, this.top, (this.right - this.left), (this.bottom - this.top));
-        }
+        public Rectangle ToRectangle() => new Rectangle(this.left, this.top, (this.right - this.left), (this.bottom - this.top));
 
         /// <summary>
         /// Get a new DirectShowLib.DsRect instance for a given <see cref="System.Drawing.Rectangle"/>
         /// </summary>
         /// <param name="r">The <see cref="System.Drawing.Rectangle"/> used to initialize this new DirectShowLib.DsGuid</param>
         /// <returns>A new instance of DirectShowLib.DsGuid</returns>
-        public static DsRect FromRectangle(Rectangle r)
-        {
-            return new DsRect(r);
-        }
+        public static DsRect FromRectangle(Rectangle r) => new DsRect(r);
 
-        public bool IsEmpty()
-        {
-            return ToRectangle().IsEmpty;
-        }
+        public bool IsEmpty() => ToRectangle().IsEmpty;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 2)]
@@ -1106,10 +1080,7 @@ namespace DirectShow
             ClrImportant = 0;
         }
 
-        public int GetBitmapSize()
-        {
-            return Width * Math.Abs(Height) * (BitCount + BitCount % 8) / 8;
-        }
+        public int GetBitmapSize() => Width * Math.Abs(Height) * (BitCount + BitCount % 8) / 8;
     }
 
     /// <summary>
@@ -1178,7 +1149,7 @@ namespace DirectShow
     [ComVisible(false)]
     public class Mpeg2VideoInfo
     {
-        public VideoInfoHeader2    hdr;
+        public VideoInfoHeader2 hdr;
         public uint dwStartTimeCode;
         public uint cbSequenceHeader;
         public uint dwProfile;
@@ -1253,10 +1224,7 @@ namespace DirectShow
         public SPEAKER dwChannelMask;
         public Guid SubFormat;
 
-        public WaveFormatExtensible()
-        {
-            Format = new WaveFormatEx();
-        }
+        public WaveFormatExtensible() => Format = new WaveFormatEx();
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -1276,7 +1244,7 @@ namespace DirectShow
         public IntPtr unkPtr;
         public int formatSize;
         public IntPtr formatPtr;
-        
+
         #endregion
 
         #region Constructor
@@ -1288,20 +1256,13 @@ namespace DirectShow
             Init();
         }
 
-        public AMMediaType(AMMediaType mt)
-            : this()
-        {
-            Set(mt);
-        }
+        public AMMediaType(AMMediaType mt) : this() => Set(mt);
 
         #endregion
 
         #region ICloneable Members
 
-        public object Clone()
-        {
-            return new AMMediaType(this);
-        }
+        public object Clone() => new AMMediaType(this);
 
         #endregion
 
@@ -1312,22 +1273,10 @@ namespace DirectShow
             if (obj is AMMediaType)
             {
                 AMMediaType _dst = (obj as AMMediaType);
-                if ((_dst.majorType != majorType))
-                {
-                    return false;
-                }
-                if (subType != _dst.subType)
-                {
-                    return false;
-                }
-                if (formatType != _dst.formatType)
-                {
-                    return false;
-                }
-                if (formatSize != _dst.formatSize)
-                {
-                    return false;
-                }
+                if ((_dst.majorType != majorType)) return false;
+                if (subType != _dst.subType) return false;
+                if (formatType != _dst.formatType) return false;
+                if (formatSize != _dst.formatSize) return false;
                 if (formatSize > 0)
                 {
                     byte[] _source = new byte[formatSize];
@@ -1335,19 +1284,14 @@ namespace DirectShow
                     Marshal.Copy(formatPtr, _source, 0, _source.Length);
                     Marshal.Copy(_dst.formatPtr, _dest, 0, _dest.Length);
                     for (int i = 0; i < _source.Length; i++)
-                    {
                         if (_dest[i] != _source[i]) return false;
-                    }
                 }
                 return true;
             }
             return base.Equals(obj);
         }
 
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+        public override int GetHashCode() => base.GetHashCode();
 
         #endregion
 
@@ -1367,13 +1311,9 @@ namespace DirectShow
             formatPtr = IntPtr.Zero;
             formatSize = mt.formatSize;
             if (unkPtr != IntPtr.Zero)
-            {
                 Marshal.AddRef(unkPtr);
-            }
             if (formatSize > 0)
-            {
                 SetFormat(mt.formatPtr, formatSize);
-            }
         }
 
         public void Free()
@@ -1410,43 +1350,22 @@ namespace DirectShow
             formatSize = 0;
         }
 
-        public bool IsValid()
-        {
-            return (majorType != null && majorType != Guid.Empty);
-        }
+        public bool IsValid() => (majorType != null && majorType != Guid.Empty);
 
-        public bool IsPartiallySpecified()
-        {
-            if ((majorType == Guid.Empty) || (formatType == Guid.Empty))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public bool IsPartiallySpecified() => (majorType == Guid.Empty) || (formatType == Guid.Empty);
 
         public bool MatchesPartial(AMMediaType _dst)
         {
             if ((_dst.majorType != Guid.Empty) && (majorType != _dst.majorType))
-            {
                 return false;
-            }
             if ((_dst.subType != Guid.Empty) && (subType != _dst.subType))
-            {
                 return false;
-            }
             if (_dst.formatType != Guid.Empty)
             {
                 if (formatType != _dst.formatType)
-                {
                     return false;
-                }
                 if (formatSize != _dst.formatSize)
-                {
                     return false;
-                }
                 if (formatSize > 0)
                 {
                     byte[] _source = new byte[formatSize];
@@ -1454,9 +1373,7 @@ namespace DirectShow
                     Marshal.Copy(formatPtr, _source, 0, _source.Length);
                     Marshal.Copy(_dst.formatPtr, _dest, 0, _dest.Length);
                     for (int i = 0; i < _source.Length; i++)
-                    {
                         if (_dest[i] != _source[i]) return false;
-                    }
                 }
 
             }
@@ -1473,10 +1390,7 @@ namespace DirectShow
             }
         }
 
-        public void SetFormat(byte[] _format)
-        {
-            SetFormat(_format, _format.Length);
-        }
+        public void SetFormat(byte[] _format) => SetFormat(_format, _format.Length);
 
         public void SetFormat(byte[] _format, int nSize)
         {
@@ -1493,9 +1407,7 @@ namespace DirectShow
         {
             AllocFormat(nSize);
             if (pFormat != IntPtr.Zero)
-            {
                 COMHelper.API.CopyMemory(formatPtr, pFormat, formatSize);
-            }
         }
 
         public void SetFormat(WaveFormatEx wfx)
@@ -1561,21 +1473,13 @@ namespace DirectShow
             if (formatPtr != IntPtr.Zero && formatSize != 0)
             {
                 if (formatType == FormatType.VideoInfo)
-                {
                     _size = formatSize - Marshal.SizeOf(typeof(VideoInfoHeader));
-                }
                 if (formatType == FormatType.VideoInfo2)
-                {
                     _size = formatSize - Marshal.SizeOf(typeof(VideoInfoHeader2));
-                }
                 if (formatType == FormatType.WaveEx || formatType == FormatType.Mpeg2Audio || formatType == FormatType.DolbyAC3)
-                {
                     _size = formatSize - Marshal.SizeOf(typeof(WaveFormatEx));
-                }
                 if (formatType == FormatType.Mpeg2Video)
-                {
                     _size = formatSize - Marshal.SizeOf(typeof(VideoInfoHeader2)) - 18;
-                }
             }
             byte[] _data = null;
             if (_size > 0)
@@ -1593,7 +1497,7 @@ namespace DirectShow
             {
                 byte[] _buffer = new byte[_size];
                 Marshal.Copy(_data, _buffer, 0, _size);
-                AddFormatExtraData(_buffer,_size);
+                AddFormatExtraData(_buffer, _size);
             }
         }
 
@@ -1614,10 +1518,7 @@ namespace DirectShow
             }
         }
 
-        public void AddFormatExtraData(byte[] _data)
-        {
-            AddFormatExtraData(_data, _data.Length);
-        }
+        public void AddFormatExtraData(byte[] _data) => AddFormatExtraData(_data, _data.Length);
 
         public byte[] ToArray()
         {
@@ -1647,46 +1548,32 @@ namespace DirectShow
         public static bool operator ==(AMMediaType _src, AMMediaType _dest)
         {
             if (System.Object.ReferenceEquals(_src, _dest))
-            {
                 return true;
-            }
             if (((object)_src == null) || ((object)_dest == null))
-            {
                 return false;
-            }
             return _src.Equals(_dest);
-
         }
 
-        public static bool operator !=(AMMediaType _src, AMMediaType _dest)
-        {
-            return !(_src == _dest);
-        }
+        public static bool operator !=(AMMediaType _src, AMMediaType _dest) => !(_src == _dest);
 
         public static implicit operator WaveFormatEx(AMMediaType mt)
         {
             if (mt.formatPtr != IntPtr.Zero && mt.formatSize != 0 && mt.formatType == FormatType.WaveEx)
-            {
                 return (WaveFormatEx)Marshal.PtrToStructure(mt.formatPtr, typeof(WaveFormatEx));
-            }
             return null;
         }
 
         public static implicit operator VideoInfoHeader(AMMediaType mt)
         {
             if (mt.formatPtr != IntPtr.Zero && mt.formatSize != 0)
-            {
                 return (VideoInfoHeader)Marshal.PtrToStructure(mt.formatPtr, typeof(VideoInfoHeader));
-            }
             return null;
         }
 
         public static implicit operator VideoInfoHeader2(AMMediaType mt)
         {
             if (mt.formatPtr != IntPtr.Zero && mt.formatSize != 0 && (mt.formatType == FormatType.VideoInfo2 || mt.formatType == FormatType.Mpeg2Video))
-            {
                 return (VideoInfoHeader2)Marshal.PtrToStructure(mt.formatPtr, typeof(VideoInfoHeader2));
-            }
             return null;
         }
 
@@ -1709,38 +1596,20 @@ namespace DirectShow
 
         #region Static Methods
 
-        public static bool IsPartiallySpecified(AMMediaType mt)
-        {
-            if ((mt.majorType == Guid.Empty) || (mt.formatType == Guid.Empty))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        public static bool IsPartiallySpecified(AMMediaType mt) => (mt.majorType == Guid.Empty) || (mt.formatType == Guid.Empty);
 
         public static bool MatchesPartial(AMMediaType _src, AMMediaType _dst)
         {
             if ((_dst.majorType != Guid.Empty) && (_src.majorType != _dst.majorType))
-            {
                 return false;
-            }
             if ((_dst.subType != Guid.Empty) && (_src.subType != _dst.subType))
-            {
                 return false;
-            }
             if (_dst.formatType != Guid.Empty)
             {
                 if (_src.formatType != _dst.formatType)
-                {
                     return false;
-                }
                 if (_src.formatSize != _dst.formatSize)
-                {
                     return false;
-                }
                 if (_src.formatSize > 0)
                 {
                     byte[] _source = new byte[_src.formatSize];
@@ -1760,13 +1629,9 @@ namespace DirectShow
         public static void Init(ref AMMediaType mt)
         {
             if (((object)mt) == null)
-            {
                 mt = new AMMediaType();
-            }
             else
-            {
                 Free(ref mt);
-            }
             mt.majorType = Guid.Empty;
             mt.subType = Guid.Empty;
             mt.fixedSizeSamples = true;
@@ -1781,13 +1646,9 @@ namespace DirectShow
         public static void Copy(AMMediaType mt, ref AMMediaType _dest)
         {
             if (((object)_dest) == null)
-            {
                 _dest = new AMMediaType();
-            }
             else
-            {
                 Free(ref _dest);
-            }
 
             _dest.majorType = mt.majorType;
             _dest.subType = mt.subType;
@@ -1852,9 +1713,7 @@ namespace DirectShow
                     Marshal.StructureToPtr(wfx, _ptr, true);
                     SetFormat(ref mt, _ptr, cb);
                     if (mt != null)
-                    {
                         mt.formatType = FormatType.WaveEx;
-                    }
                 }
                 finally
                 {
@@ -1874,9 +1733,7 @@ namespace DirectShow
                     Marshal.StructureToPtr(vih, _ptr, true);
                     SetFormat(ref mt, _ptr, cb);
                     if (mt != null)
-                    {
                         mt.formatType = FormatType.VideoInfo;
-                    }
                 }
                 finally
                 {
@@ -1898,29 +1755,14 @@ namespace DirectShow
             }
         }
 
-        public static bool IsValid(AMMediaType mt)
-        {
-            return (mt.majorType != null && mt.majorType != Guid.Empty);
-        }
+        public static bool IsValid(AMMediaType mt) => (mt.majorType != null && mt.majorType != Guid.Empty);
 
         public static bool AreEquals(AMMediaType _src, AMMediaType _dst)
         {
-            if ((_dst.majorType != _src.majorType))
-            {
-                return false;
-            }
-            if (_src.subType != _dst.subType)
-            {
-                return false;
-            }
-            if (_src.formatType != _dst.formatType)
-            {
-                return false;
-            }
-            if (_src.formatSize != _dst.formatSize)
-            {
-                return false;
-            }
+            if ((_dst.majorType != _src.majorType)) return false;
+            if (_src.subType != _dst.subType) return false;
+            if (_src.formatType != _dst.formatType) return false;
+            if (_src.formatSize != _dst.formatSize) return false;
             if (_src.formatSize > 0)
             {
                 byte[] _source = new byte[_src.formatSize];
@@ -1928,9 +1770,7 @@ namespace DirectShow
                 Marshal.Copy(_src.formatPtr, _source, 0, _source.Length);
                 Marshal.Copy(_dst.formatPtr, _dest, 0, _dest.Length);
                 for (int i = 0; i < _source.Length; i++)
-                {
                     if (_dest[i] != _source[i]) return false;
-                }
             }
             return true;
         }
@@ -2004,41 +1844,21 @@ namespace DirectShow
     [StructLayout(LayoutKind.Sequential)]
     public class DsLong
     {
-        private long Value;
-        public DsLong(long Value)
-        {
-            this.Value = Value;
-        }
+        private readonly long Value;
+        
+        public DsLong(long value) => Value = value;
 
-        public override string ToString()
-        {
-            return this.Value.ToString();
-        }
+        public override string ToString() => Value.ToString();
 
-        public override int GetHashCode()
-        {
-            return this.Value.GetHashCode();
-        }
+        public override int GetHashCode() => Value.GetHashCode();
 
-        public static implicit operator long(DsLong l)
-        {
-            return l.Value;
-        }
+        public static implicit operator long(DsLong l) => l.Value;
 
-        public static implicit operator DsLong(long l)
-        {
-            return new DsLong(l);
-        }
+        public static implicit operator DsLong(long l) => new DsLong(l);
 
-        public long ToInt64()
-        {
-            return this.Value;
-        }
+        public long ToInt64() => Value;
 
-        public static DsLong FromInt64(long l)
-        {
-            return new DsLong(l);
-        }
+        public static DsLong FromInt64(long l) => new DsLong(l);
     }
 
     [ComVisible(false)]
@@ -2046,58 +1866,29 @@ namespace DirectShow
     public class DsGuid
     {
         public static readonly DsGuid Empty = Guid.Empty;
+
         [FieldOffset(0)]
         private Guid guid;
 
-        public DsGuid()
-        {
-            this.guid = Guid.Empty;
-        }
+        public DsGuid() => guid = Guid.Empty;
 
-        public DsGuid(Guid g)
-        {
-            this.guid = g;
-        }
+        public DsGuid(Guid g) => guid = g;
 
-        public DsGuid(string g)
-        {
-            this.guid = new Guid(g);
-        }
+        public DsGuid(string g) => guid = new Guid(g);
 
-        public static DsGuid FromGuid(Guid g)
-        {
-            return new DsGuid(g);
-        }
+        public static DsGuid FromGuid(Guid g) => new DsGuid(g);
 
-        public override int GetHashCode()
-        {
-            return this.guid.GetHashCode();
-        }
+        public override int GetHashCode() => guid.GetHashCode();
 
-        public static implicit operator Guid(DsGuid g)
-        {
-            return g.guid;
-        }
+        public static implicit operator Guid(DsGuid g) => g.guid;
 
-        public static implicit operator DsGuid(Guid g)
-        {
-            return new DsGuid(g);
-        }
+        public static implicit operator DsGuid(Guid g) => new DsGuid(g);
 
-        public Guid ToGuid()
-        {
-            return this.guid;
-        }
+        public Guid ToGuid() => guid;
 
-        public override string ToString()
-        {
-            return this.guid.ToString();
-        }
+        public override string ToString() => guid.ToString();
 
-        public string ToString(string format)
-        {
-            return this.guid.ToString(format);
-        }
+        public string ToString(string format) => guid.ToString(format);
     }
 
     [Flags]
@@ -3557,13 +3348,13 @@ namespace DirectShow
 
         [PreserveSig]
         int IsDirty();
-        
+
         [PreserveSig]
         int Load(IntPtr pStm);
-        
+
         [PreserveSig]
         int Save(IntPtr pStm, [MarshalAs(UnmanagedType.Bool)] bool fClearDirty);
-        
+
         [PreserveSig]
         int GetSizeMax(out long pcbSize);
     }
@@ -3862,16 +3653,16 @@ namespace DirectShow
 
         [PreserveSig]
         int AddSourceFilter(
-            [In]											string strFilename,
-            [Out, MarshalAs(UnmanagedType.IDispatch)]	out object ppUnk);
+            [In]                                            string strFilename,
+            [Out, MarshalAs(UnmanagedType.IDispatch)]   out object ppUnk);
 
         [PreserveSig]
         int get_FilterCollection(
-            [Out, MarshalAs(UnmanagedType.IDispatch)]	out object ppUnk);
+            [Out, MarshalAs(UnmanagedType.IDispatch)]   out object ppUnk);
 
         [PreserveSig]
         int get_RegFilterCollection(
-            [Out, MarshalAs(UnmanagedType.IDispatch)]	out object ppUnk);
+            [Out, MarshalAs(UnmanagedType.IDispatch)]   out object ppUnk);
 
         [PreserveSig]
         int StopWhenReady();
@@ -4303,7 +4094,7 @@ namespace DirectShow
         int GetAllocatorProperties([Out] AllocatorProperties pprop);
     }
 
-    public enum AMSTREAMSELECTINFOFLAGS: uint
+    public enum AMSTREAMSELECTINFOFLAGS : uint
     {
         ENABLED = 0x1,
         EXCLUSIVE = 0x2
@@ -4325,9 +4116,9 @@ namespace DirectShow
         int Count(
             [Out] out int pcStreams
             );
-        
+
         [PreserveSig]
-        int Info( 
+        int Info(
             [In] int lIndex,
             [In, Out] IntPtr ppmt, // AMMediaType
             [In, Out] IntPtr pdwFlags, // DWORD * AMSTREAMSELECTINFOFLAGS
@@ -4336,9 +4127,9 @@ namespace DirectShow
             [In, Out] IntPtr ppszName, // WCHAR **
             [In, Out] IntPtr ppObject, // IUnknown * 
             [In, Out] IntPtr ppUnk); // IUnknown * 
-        
+
         [PreserveSig]
-        int Enable( 
+        int Enable(
             [In] int lIndex,
             [In] AMSTREAMSELECTENABLEFLAGS dwFlags);
     }
@@ -4386,46 +4177,21 @@ namespace DirectShow
     {
         #region Delgates
 
-        private delegate int GetPointerProc(
-            IntPtr pUnk,
-            out IntPtr ppBuffer
-            );
+        private delegate int GetPointerProc(IntPtr pUnk, out IntPtr ppBuffer);
 
-        private delegate int GetSizeProc(
-            IntPtr pUnk
-            );
+        private delegate int GetSizeProc(IntPtr pUnk);
 
-        private delegate int SetSizeProc(
-            IntPtr pUnk,
-            int nSize
-            );
+        private delegate int SetSizeProc(IntPtr pUnk, int nSize);
 
-        private delegate int GetTimeProc(
-            IntPtr pUnk,
-            out long pTimeStart, 
-            out long pTimeEnd
-            );
+        private delegate int GetTimeProc(IntPtr pUnk, out long pTimeStart, out long pTimeEnd);
 
-        private delegate int SetTimeProc(
-            IntPtr pUnk,
-            [In, MarshalAs(UnmanagedType.LPStruct)] DsLong pTimeStart,
-            [In, MarshalAs(UnmanagedType.LPStruct)] DsLong pTimeEnd
-            );
+        private delegate int SetTimeProc(IntPtr pUnk, [In, MarshalAs(UnmanagedType.LPStruct)] DsLong pTimeStart, [In, MarshalAs(UnmanagedType.LPStruct)] DsLong pTimeEnd);
 
-        private delegate int SetBoolProc(
-            IntPtr pUnk,
-            [MarshalAs(UnmanagedType.Bool)] bool bValue
-            );
+        private delegate int SetBoolProc(IntPtr pUnk, [MarshalAs(UnmanagedType.Bool)] bool bValue);
 
-        private delegate int GetMediaTypeProc(
-            IntPtr pUnk,
-            [Out, MarshalAs(UnmanagedType.LPStruct)] out AMMediaType ppMediaType
-            );
+        private delegate int GetMediaTypeProc(IntPtr pUnk, [Out, MarshalAs(UnmanagedType.LPStruct)] out AMMediaType ppMediaType);
 
-        private delegate int SetMediaTypeProc(
-            IntPtr pUnk,
-            [In, MarshalAs(UnmanagedType.LPStruct)] AMMediaType pMediaType
-            );
+        private delegate int SetMediaTypeProc(IntPtr pUnk, [In, MarshalAs(UnmanagedType.LPStruct)] AMMediaType pMediaType);
 
         #endregion
 
@@ -4441,6 +4207,12 @@ namespace DirectShow
 
         #region IMediaSample Members
 
+        /// <summary>
+        /// Gets a pointer to the media sample's buffer, already allocated for the 
+        /// size the filter agreed upon during negotiation
+        /// </summary>
+        /// <param name="ppBuffer"></param>
+        /// <returns></returns>
         public int GetPointer(out IntPtr ppBuffer)
         {
             ppBuffer = IntPtr.Zero;
@@ -4450,10 +4222,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        out ppBuffer
-                        );
+            return (HRESULT)_Proc(m_pUnknown, out ppBuffer);
         }
 
         public int GetSize()
@@ -4464,9 +4233,7 @@ namespace DirectShow
 
             if (_Proc == null) return 0;
 
-            return _Proc(
-                        m_pUnknown
-                        );
+            return _Proc(m_pUnknown);
         }
 
         public int GetTime(out long pTimeStart, out long pTimeEnd)
@@ -4479,10 +4246,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        out pTimeStart, out pTimeEnd
-                        );
+            return (HRESULT)_Proc(m_pUnknown, out pTimeStart, out pTimeEnd);
         }
 
         public int SetTime(DsLong pTimeStart, DsLong pTimeEnd)
@@ -4493,10 +4257,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pTimeStart, pTimeEnd
-                        );
+            return (HRESULT)_Proc(m_pUnknown, pTimeStart, pTimeEnd);
         }
 
         public int IsSyncPoint()
@@ -4507,9 +4268,7 @@ namespace DirectShow
 
             if (_Proc == null) return S_FALSE;
 
-            return _Proc(
-                        m_pUnknown
-                        );
+            return _Proc(m_pUnknown);
         }
 
         public int SetSyncPoint(bool bIsSyncPoint)
@@ -4520,10 +4279,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        bIsSyncPoint
-                        );
+            return (HRESULT)_Proc(m_pUnknown, bIsSyncPoint);
         }
 
         public int IsPreroll()
@@ -4534,9 +4290,7 @@ namespace DirectShow
 
             if (_Proc == null) return S_FALSE;
 
-            return _Proc(
-                        m_pUnknown
-                        );
+            return _Proc(m_pUnknown);
         }
 
         public int SetPreroll(bool bIsPreroll)
@@ -4547,10 +4301,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        bIsPreroll
-                        );
+            return (HRESULT)_Proc(m_pUnknown, bIsPreroll);
         }
 
         public int GetActualDataLength()
@@ -4561,9 +4312,7 @@ namespace DirectShow
 
             if (_Proc == null) return 0;
 
-            return _Proc(
-                        m_pUnknown
-                        );
+            return _Proc(m_pUnknown);
         }
 
         public int SetActualDataLength(int len)
@@ -4574,10 +4323,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        len
-                        );
+            return (HRESULT)_Proc(m_pUnknown, len);
         }
 
         public int GetMediaType(out AMMediaType ppMediaType)
@@ -4589,10 +4335,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        out ppMediaType
-                        );
+            return (HRESULT)_Proc(m_pUnknown, out ppMediaType);
         }
 
         public int SetMediaType(AMMediaType pMediaType)
@@ -4603,10 +4346,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pMediaType
-                        );
+            return (HRESULT)_Proc(m_pUnknown, pMediaType);
         }
 
         public int IsDiscontinuity()
@@ -4617,9 +4357,7 @@ namespace DirectShow
 
             if (_Proc == null) return S_FALSE;
 
-            return _Proc(
-                        m_pUnknown
-                        );
+            return _Proc(m_pUnknown);
         }
 
         public int SetDiscontinuity(bool bDiscontinuity)
@@ -4630,10 +4368,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        bDiscontinuity
-                        );
+            return (HRESULT)_Proc(m_pUnknown, bDiscontinuity);
         }
 
         public int GetMediaTime(out long pTimeStart, out long pTimeEnd)
@@ -4646,10 +4381,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        out pTimeStart, out pTimeEnd
-                        );
+            return (HRESULT)_Proc(m_pUnknown, out pTimeStart, out pTimeEnd);
         }
 
         public int SetMediaTime(DsLong pTimeStart, DsLong pTimeEnd)
@@ -4660,10 +4392,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pTimeStart, pTimeEnd
-                        );
+            return (HRESULT)_Proc(m_pUnknown, pTimeStart, pTimeEnd);
         }
 
         #endregion
@@ -4764,7 +4493,7 @@ namespace DirectShow
         #region Constructor
 
         public IMemInputPinImpl(IntPtr pMemInputPin)
-            : base(pMemInputPin,false)
+            : base(pMemInputPin, false)
         {
 
         }
@@ -4840,8 +4569,8 @@ namespace DirectShow
 
             return (HRESULT)_Proc(
                         m_pUnknown,
-                        pSamples, 
-                        nSamples, 
+                        pSamples,
+                        nSamples,
                         out nSamplesProcessed
                         );
         }
@@ -5147,7 +4876,7 @@ namespace DirectShow
         private delegate int EnumMediaTypesProc(
             IntPtr pUnk,
             [Out] out IntPtr ppEnum);
-            //[Out] out IEnumMediaTypes ppEnum);
+        //[Out] out IEnumMediaTypes ppEnum);
 
         private delegate int QueryInternalConnectionsProc(
             IntPtr pUnk,
@@ -5407,7 +5136,7 @@ namespace DirectShow
     public class ISeekingPassThruImpl : VTableInterface, ISeekingPassThru
     {
         #region Delegate
- 
+
         private delegate int InitProc(
             IntPtr pUnk,
             [In, MarshalAs(UnmanagedType.Bool)] bool bSupportRendering,
@@ -5964,7 +5693,7 @@ namespace DirectShow
 
             return (HRESULT)_Proc(
                         m_pUnknown,
-                        baseTime, streamTime, hEvent, out pdwAdviseCookie 
+                        baseTime, streamTime, hEvent, out pdwAdviseCookie
                         );
         }
 
@@ -6145,7 +5874,7 @@ namespace DirectShow
 
             return (HRESULT)_Proc(
                         m_pUnknown,
-                        dwTimeout,out ppSample, out pdwUser
+                        dwTimeout, out ppSample, out pdwUser
                         );
         }
 
@@ -6223,15 +5952,15 @@ namespace DirectShow
     }
 
     [ComVisible(false)]
-    public class IStreamImpl: VTableInterface, IStream
+    public class IStreamImpl : VTableInterface, IStream
     {
         #region Delegate
 
         private delegate int ReadProc(
             IntPtr pUnk,
-            [In, Out,MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] byte[] pv, 
-            [In] int cb, 
-            [In,Out] IntPtr pcbRead
+            [In, Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] byte[] pv,
+            [In] int cb,
+            [In, Out] IntPtr pcbRead
             );
 
         private delegate int WriteProc(
@@ -6432,7 +6161,7 @@ namespace DirectShow
                         );
             hr.Throw();
         }
-      
+
         public void Stat(out System.Runtime.InteropServices.ComTypes.STATSTG pstatstg, int grfStatFlag)
         {
             if (m_pUnknown == IntPtr.Zero) E_NOINTERFACE.Throw();

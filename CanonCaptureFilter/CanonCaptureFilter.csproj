@@ -51,7 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api.cs" />
-    <Compile Include="CanonCameraFilter2.cs" />
+    <Compile Include="Canon\CanonCameraFilter2.cs" />
+    <Compile Include="Canon\CanonSourceStream.cs" />
     <Compile Include="FilterAboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -70,7 +71,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="CanonCameraFilter.cs" />
+    <Compile Include="Screen\ScreenCaptureFilter.cs" />
+    <Compile Include="Screen\ScreenCaptureStream.cs" />
+    <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaseClasses\DirectShow.BaseClasses.csproj">

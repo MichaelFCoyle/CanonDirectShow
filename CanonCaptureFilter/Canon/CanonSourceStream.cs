@@ -6,32 +6,13 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 namespace CanonCaptureFilter
 {
-    [ComVisible(true)]
-    [Guid("0E507CD8-A5FA-45E7-A3C2-5ACAF2E35C8A")]
-    [AMovieSetup(Merit.Normal, AMovieSetup.CLSID_VideoInputDeviceCategory)]
-    [PropPageSetup(typeof(FilterAboutForm))]
-    public class CanonCameraFilter2 : BaseSourceFilter
-    {
-        public CanonCameraFilter2() :base("Canon Camera Capture 2")
-        {
-
-        }
-
-        protected override int OnInitializePins()
-        {
-            return AddPin(new CanonSourceStream("Capture", this));
-        }
-
-    }
-
     [ComVisible(false)]
     public class CanonSourceStream : SourceStream, IAMPushSource
     {
-        SDKHandler m_CameraHandler = new SDKHandler();
+        readonly SDKHandler m_CameraHandler = new SDKHandler();
         BitmapInfo m_bmi = new BitmapInfo() { bmiHeader = new BitmapInfoHeader() };
         Bitmap m_lastFrame;
 
@@ -39,15 +20,34 @@ namespace CanonCaptureFilter
         int m_height;
         int m_bitsPerPixel;
 
-        protected IntPtr m_hMemDC = IntPtr.Zero;
-        protected IntPtr m_hBitmap = IntPtr.Zero;
-
-        public CanonSourceStream(string name, BaseSourceFilter source):base(name,source)
+        public CanonSourceStream(string name, BaseSourceFilter source) : base(name, source)
         {
             m_CameraHandler.CameraAdded += SDK_CameraAdded;
             m_CameraHandler.LiveViewUpdated += SDK_LiveViewUpdated;
             m_CameraHandler.ProgressChanged += SDK_ProgressChanged;
             m_CameraHandler.CameraHasShutdown += SDK_CameraHasShutdown;
+        }
+
+        protected override int OnThreadCreate()
+        {
+            // get the camera
+            m_CameraHandler.OpenSession(m_CameraHandler.MainCamera);
+            // open the session
+            m_CameraHandler.StartLiveView();
+            return base.OnThreadCreate();
+        }
+
+        protected override int OnThreadDestroy()
+        {
+            m_CameraHandler.StopLiveView();
+            // close the session
+            m_CameraHandler.CloseSession();
+            return base.OnThreadDestroy();
+        }
+
+        protected override int OnThreadStartPlay()
+        {
+            return base.OnThreadStartPlay();
         }
 
         /// <summary>
@@ -90,22 +90,16 @@ namespace CanonCaptureFilter
             return pAlloc.SetProperties(prop, _actual);
         }
 
-        public override int FillBuffer(ref IMediaSampleImpl _sample)
+        public override int FillBuffer(ref IMediaSampleImpl sample)
         {
-            _sample.GetPointer(out IntPtr _ptr);
+            sample.GetPointer(out IntPtr ptr);
 
-            using (Graphics g = Graphics.FromImage(m_lastFrame))
-            {
-                m_hMemDC = Api.CreateCompatibleDC(g.GetHdc());
-                m_hBitmap = Api.CreateCompatibleBitmap(m_hMemDC, m_width, Math.Abs(m_height));
+            var bytes = m_lastFrame.GetBytes();
 
-                Api.GetDIBits(m_hMemDC, m_hBitmap, 0, (uint)Math.Abs(m_height), _ptr, ref m_bmi, 0);
+            Marshal.Copy(bytes, 0, ptr, bytes.Length);
 
-
-            }
-
-            _sample.SetActualDataLength(_sample.GetSize());
-            _sample.SetSyncPoint(true);
+            sample.SetActualDataLength(sample.GetSize());
+            sample.SetSyncPoint(true);
             return NOERROR;
         }
 
@@ -124,7 +118,6 @@ namespace CanonCaptureFilter
             pMediaType.majorType = MediaType.Video;
             pMediaType.formatType = FormatType.VideoInfo;
             pMediaType.temporalCompression = false;
-
 
             VideoInfoHeader vih = new VideoInfoHeader
             {
@@ -252,7 +245,7 @@ namespace CanonCaptureFilter
                 m_height = m_lastFrame.Height;
                 m_bitsPerPixel = Image.GetPixelFormatSize(m_lastFrame.PixelFormat);
 
-                
+
             }
             catch
             {
@@ -270,37 +263,80 @@ namespace CanonCaptureFilter
 
         public int GetLatency(out long prtLatency)
         {
-            throw new NotImplementedException();
+            prtLatency = UNITS / 30;
+            AMMediaType mt = this.CurrentMediaType;
+            if (mt.majorType == MediaType.Video)
+            {
+                {
+                    VideoInfoHeader _pvi = mt;
+                    if (_pvi != null)
+                        prtLatency = _pvi.AvgTimePerFrame;
+                }
+                {
+                    VideoInfoHeader2 _pvi = mt;
+                    if (_pvi != null)
+                        prtLatency = _pvi.AvgTimePerFrame;
+                }
+            }
+            return NOERROR;
         }
 
         public int GetPushSourceFlags([Out] out AMPushSourceFlags pFlags)
         {
-            throw new NotImplementedException();
+            pFlags = AMPushSourceFlags.None;
+            return NOERROR;
         }
 
         public int SetPushSourceFlags([In] AMPushSourceFlags Flags)
         {
-            throw new NotImplementedException();
+            return E_NOTIMPL;
         }
+
+        readonly object m_csPinLock = new object();
+        protected long m_rtStreamOffset = 0;
+        protected long m_rtStreamOffsetMax = -1;
 
         public int SetStreamOffset([In] long rtOffset)
         {
-            throw new NotImplementedException();
+            lock (m_csPinLock)
+            {
+                m_rtStreamOffset = rtOffset;
+                if (m_rtStreamOffset > m_rtStreamOffsetMax) m_rtStreamOffsetMax = m_rtStreamOffset;
+            }
+            return NOERROR;
         }
 
         public int GetStreamOffset([Out] out long prtOffset)
         {
-            throw new NotImplementedException();
+            prtOffset = 0;
+            if (m_rtStreamOffsetMax == -1)
+            {
+                HRESULT hr = (HRESULT)GetLatency(out m_rtStreamOffsetMax);
+                if (FAILED(hr)) return hr;
+                if (m_rtStreamOffsetMax < m_rtStreamOffset) m_rtStreamOffsetMax = m_rtStreamOffset;
+            }
+            prtOffset = m_rtStreamOffsetMax;
+            return NOERROR;
         }
 
         public int GetMaxStreamOffset([Out] out long prtMaxOffset)
         {
-            throw new NotImplementedException();
+            prtMaxOffset = 0;
+            if (m_rtStreamOffsetMax == -1)
+            {
+                HRESULT hr = (HRESULT)GetLatency(out m_rtStreamOffsetMax);
+                if (FAILED(hr)) return hr;
+                if (m_rtStreamOffsetMax < m_rtStreamOffset) m_rtStreamOffsetMax = m_rtStreamOffset;
+            }
+            prtMaxOffset = m_rtStreamOffsetMax;
+            return NOERROR;
         }
 
         public int SetMaxStreamOffset([In] long rtMaxOffset)
         {
-            throw new NotImplementedException();
+            if (rtMaxOffset < m_rtStreamOffset) return E_INVALIDARG;
+            m_rtStreamOffsetMax = rtMaxOffset;
+            return NOERROR;
         }
 
         #endregion

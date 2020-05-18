@@ -39,6 +39,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -66,6 +69,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -89,6 +93,10 @@
     <ProjectReference Include="..\CanonCaptureFilter\CanonCaptureFilter.csproj">
       <Project>{2ec826e3-4c59-469c-9c82-bcc68b1e612e}</Project>
       <Name>CanonCaptureFilter</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EDSDK-BT\EDSDK-BT.csproj">
+      <Project>{88d6066f-000e-497e-9fba-d6b51d75075c}</Project>
+      <Name>EDSDK-BT</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

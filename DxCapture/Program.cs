@@ -17,12 +17,18 @@ namespace DxCapture
         [STAThread]
         static void Main()
         {
-            if(!Register(s_assembly))
+            if (!Register(s_assembly))
+            {
+                MessageBox.Show("Error loading Canon Capture Filter - need administrator privileges");
                 Trace.TraceError("Error registering assembly: {0}", s_assembly);
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
-            if(!Unregister("CanonCaptureFilter.dll"))
+
+            if (!Unregister("CanonCaptureFilter.dll"))
                 Trace.TraceError("Error unregistering assembly: {0}", s_assembly);
         }
 

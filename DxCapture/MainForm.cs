@@ -13,17 +13,18 @@ namespace DxCapture
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            m_Capture = new VideoCaptureGraph
-            {
-                VideoControl = this.pbPreview
-            };
-            m_Capture.OnPlaybackStart += new EventHandler(Playback_OnPlaybackStart);
-            m_Capture.OnPlaybackStop += new EventHandler(Playback_OnPlaybackStop);
+            m_Capture = new VideoCaptureGraph { VideoControl = myPreviewPictureBox };
+            m_Capture.OnPlaybackStart += Playback_OnPlaybackStart;
+            m_Capture.OnPlaybackStop += Playback_OnPlaybackStop;
+
             Playback_OnPlaybackStop(sender, e);
-            btnCapture.Enabled = false;
+            myCaptureButton.Enabled = false;
+
             List<DSDevice> _devices = (new DSVideoCaptureCategory()).Objects;
-            foreach (DSDevice _device in _devices) cmboCaptureDevice.Items.Add(_device);
-            if (cmboCaptureDevice.Items.Count > 0) cmboCaptureDevice.SelectedIndex = 0;
+            foreach (DSDevice _device in _devices) 
+                myCaptureDeviceComboBox.Items.Add(_device);
+
+            if (myCaptureDeviceComboBox.Items.Count > 0) myCaptureDeviceComboBox.SelectedIndex = 0;
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -35,42 +36,41 @@ namespace DxCapture
 
         private void Playback_OnPlaybackStop(object sender, EventArgs e)
         {
-            btnCapture.Text = "Capture";
-            btnProperties.Enabled = (m_Capture.CaptureDevice != null && m_Capture.CaptureDevice.HaveProperties);
-            btnBrowseDest.Enabled = true;
-            cmboCaptureDevice.Enabled = true;
+            myCaptureButton.Text = "Capture";
+            myPropertiesButton.Enabled = (m_Capture.CaptureDevice != null && m_Capture.CaptureDevice.HaveProperties);
+            myBrowseDestButton.Enabled = true;
+            myCaptureDeviceComboBox.Enabled = true;
         }
 
         private void Playback_OnPlaybackStart(object sender, EventArgs e)
         {
-            btnCapture.Text = "Stop";
-            btnProperties.Enabled = false;
-            btnBrowseDest.Enabled = false;
-            cmboCaptureDevice.Enabled = false;
+            myCaptureButton.Text = "Stop";
+            myPropertiesButton.Enabled = false;
+            myBrowseDestButton.Enabled = false;
+            myCaptureDeviceComboBox.Enabled = false;
         }
 
         private void CaptureDevice_SelectedIndexChanged(object sender, EventArgs e)
         {
             m_Capture.CaptureDevice = null;
-            if (cmboCaptureDevice.SelectedItem != null)
+            if (myCaptureDeviceComboBox.SelectedItem != null)
             {
-                m_Capture.CaptureDevice = ((DSDevice)cmboCaptureDevice.SelectedItem).Filter;
+                m_Capture.CaptureDevice = ((DSDevice)myCaptureDeviceComboBox.SelectedItem).Filter;
                 if (m_Capture.CaptureDevice != null && !m_Capture.CaptureDevice.IsValid)
                     m_Capture.CaptureDevice = null;
             }
-            btnCapture.Enabled = (m_Capture.CaptureDevice != null && m_Capture.CaptureDevice.IsValid);
-            btnProperties.Enabled = (m_Capture.CaptureDevice != null && m_Capture.CaptureDevice.HaveProperties);
+            myCaptureButton.Enabled = (m_Capture.CaptureDevice != null && m_Capture.CaptureDevice.IsValid);
+            myPropertiesButton.Enabled = (m_Capture.CaptureDevice != null && m_Capture.CaptureDevice.HaveProperties);
         }
 
         private void Properties_Click(object sender, EventArgs e) => m_Capture.CaptureDevice.ShowProperties(Handle);
 
         private void BrowseDest_Click(object sender, EventArgs e)
         {
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                tbDestFileName.Text = saveFileDialog.FileName;
-                m_Capture.OutputFileName = saveFileDialog.FileName;
-            }
+            if (mySaveFileDialog.ShowDialog() != DialogResult.OK)
+                return;
+            myDestFileNameTextBox.Text = mySaveFileDialog.FileName;
+            m_Capture.OutputFileName = mySaveFileDialog.FileName;
         }
 
         private void Capture_Click(object sender, EventArgs e)
