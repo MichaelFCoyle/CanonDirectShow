@@ -444,30 +444,26 @@ namespace CanonCaptureFilter
         {
             pcbReturned = Marshal.SizeOf(typeof(Guid));
 
-            if (guidPropSet != PropSetID.Pin)
-                return E_PROP_SET_UNSUPPORTED;
+            if (guidPropSet != PropSetID.Pin) return E_PROP_SET_UNSUPPORTED;
 
-            if (dwPropID != (int)AMPropertyPin.Category)
-                return E_PROP_ID_UNSUPPORTED;
+            if (dwPropID != (int)AMPropertyPin.Category) return E_PROP_ID_UNSUPPORTED;
 
-            if (pPropData == IntPtr.Zero)
-                return NOERROR;
+            if (pPropData == IntPtr.Zero) return NOERROR;
 
-            if (cbPropData < Marshal.SizeOf(typeof(Guid)))
-                return E_UNEXPECTED;
+            if (cbPropData < Marshal.SizeOf(typeof(Guid))) return E_UNEXPECTED;
 
             Marshal.StructureToPtr(PinCategory.Capture, pPropData, false);
+
             return NOERROR;
         }
 
         public int QuerySupported(Guid guidPropSet, int dwPropID, out KSPropertySupport pTypeSupport)
         {
             pTypeSupport = KSPropertySupport.Get;
-            if (guidPropSet != PropSetID.Pin)
-                return E_PROP_SET_UNSUPPORTED;
 
-            if (dwPropID != (int)AMPropertyPin.Category)
-                return E_PROP_ID_UNSUPPORTED;
+            if (guidPropSet != PropSetID.Pin) return E_PROP_SET_UNSUPPORTED;
+
+            if (dwPropID != (int)AMPropertyPin.Category) return E_PROP_ID_UNSUPPORTED;
 
             return S_OK;
         }

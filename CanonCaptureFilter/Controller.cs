@@ -102,7 +102,7 @@ namespace CanonCaptureFilter
             {
                 using (Bitmap bitmap = new Bitmap(stream))
                 {
-                    m_stats.UpdateStats(bitmap);
+                    m_stats.Update(bitmap);
 
                     if (IsStarted)
                         FrameReceived?.Invoke(null, (Bitmap)Image.FromStream(stream));

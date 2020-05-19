@@ -25,7 +25,14 @@ namespace CanonCaptureFilter
                 int bytes = Math.Abs(bmpData.Stride) * bitmap.Height;
                 byte[] rgbValues = new byte[bytes];
                 Marshal.Copy(ptr, rgbValues, 0, bytes);
-                return rgbValues;
+
+                // copy the bytes, row by row, reversed
+                byte[] reversed = new byte[bytes];
+
+                for (int i = 0; i < bmpData.Height; i++)
+                    Array.Copy(rgbValues, i * bmpData.Stride, reversed, bmpData.Height - i, bmpData.Stride);
+
+                return reversed;
             }
             catch (Exception ex)
             {
@@ -49,5 +56,17 @@ namespace CanonCaptureFilter
             return unmanagedPointer;
         }
 
+        // Copy the bitmap, rotate it, and return the result.
+        public static Bitmap ModifiedBitmap(this Image original, RotateFlipType rotate_flip_type)
+        {
+            // Copy the Bitmap.
+            Bitmap new_bitmap = new Bitmap(original);
+
+            // Rotate and flip.
+            new_bitmap.RotateFlip(rotate_flip_type);
+
+            // Return the result.
+            return new_bitmap;
+        }
     }
 }

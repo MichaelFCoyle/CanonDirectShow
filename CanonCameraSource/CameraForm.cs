@@ -5,53 +5,52 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using EDSDK_NET;
 using EDSDKLib;
-using DirectShow.BaseClasses;
-using System.Runtime.InteropServices;
+using CanonCaptureFilter;
 
-namespace CanonCaptureFilter
+namespace CanonCameraSource
 {
-    [ComVisible(true)]
-    [Guid("C2D28A5D-652A-496E-8F42-A4B58A67A221")]
-    public partial class CanonAboutForm : BasePropertyPage
+    public partial class CameraForm : Form
     {
         #region Variables
 
-        List<int> AvList;
-        List<int> TvList;
-        List<int> ISOList;
-        List<Camera> CamList;
-        Bitmap Evf_Bmp;
-        int LVBw, LVBh, w, h;
-        float LVBratio, LVration;
+        SDKHandler CameraHandler => Controller.SDK;
 
-        int ErrCount;
-        readonly object ErrLock = new object();
+        List<int> m_AvList;
+        List<int> m_TvList;
+        List<int> m_ISOList;
+        List<Camera> m_CamList;
+        Bitmap m_Evf_Bmp;
+        int m_LVBw, m_LVBh, m_w, m_h;
+        float m_LVBratio, m_LVration;
+
+        int m_ErrCount;
+        readonly object m_ErrLock = new object();
 
         #endregion
 
-        public CanonAboutForm()
+        public CameraForm()
         {
             try
             {
                 InitializeComponent();
                 Controller.Initialize();
-                //CameraHandler = new SDKHandler();
-                Controller.SDK.CameraAdded += SDK_CameraAdded;
-                Controller.SDK.LiveViewUpdated += SDK_LiveViewUpdated;
-                Controller.SDK.ProgressChanged += SDK_ProgressChanged;
-                Controller.SDK.CameraHasShutdown += SDK_CameraHasShutdown;
+                CameraHandler.CameraAdded += SDK_CameraAdded;
+                CameraHandler.LiveViewUpdated += SDK_LiveViewUpdated;
+                CameraHandler.ProgressChanged += SDK_ProgressChanged;
+                CameraHandler.CameraHasShutdown += SDK_CameraHasShutdown;
                 SavePathTextBox.Text = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "RemotePhoto");
-                LVBw = myLiveViewPicBox.Width;
-                LVBh = myLiveViewPicBox.Height;
+                m_LVBw = myLiveViewPicBox.Width;
+                m_LVBh = myLiveViewPicBox.Height;
                 RefreshCamera();
             }
             catch (DllNotFoundException) { ReportError("Canon DLLs not found!", true); }
             catch (Exception ex) { ReportError(ex.Message, true); }
         }
 
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            try { Controller.SDK?.Dispose(); }
+            try { CameraHandler?.Dispose(); }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
@@ -71,24 +70,24 @@ namespace CanonCaptureFilter
         {
             try
             {
-                Evf_Bmp = new Bitmap(img);
+                m_Evf_Bmp = new Bitmap(img);
                 using (Graphics g = myLiveViewPicBox.CreateGraphics())
                 {
-                    LVBratio = LVBw / (float)LVBh;
-                    LVration = Evf_Bmp.Width / (float)Evf_Bmp.Height;
-                    if (LVBratio < LVration)
+                    m_LVBratio = m_LVBw / (float)m_LVBh;
+                    m_LVration = m_Evf_Bmp.Width / (float)m_Evf_Bmp.Height;
+                    if (m_LVBratio < m_LVration)
                     {
-                        w = LVBw;
-                        h = (int)(LVBw / LVration);
+                        m_w = m_LVBw;
+                        m_h = (int)(m_LVBw / m_LVration);
                     }
                     else
                     {
-                        w = (int)(LVBh * LVration);
-                        h = LVBh;
+                        m_w = (int)(m_LVBh * m_LVration);
+                        m_h = m_LVBh;
                     }
-                    g.DrawImage(Evf_Bmp, 0, 0, w, h);
+                    g.DrawImage(m_Evf_Bmp, 0, 0, m_w, m_h);
                 }
-                Evf_Bmp.Dispose();
+                m_Evf_Bmp.Dispose();
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
@@ -113,9 +112,9 @@ namespace CanonCaptureFilter
         {
             try
             {
-                if (Controller.SDK.CameraSessionOpen) 
+                if (CameraHandler.CameraSessionOpen)
                     CloseSession();
-                else 
+                else
                     OpenSession();
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
@@ -136,9 +135,9 @@ namespace CanonCaptureFilter
             try
             {
                 if ((string)TvCoBox.SelectedItem == "Bulb")
-                    Controller.SDK.TakePhoto((uint)BulbUpDo.Value);
+                    CameraHandler.TakePhoto((uint)BulbUpDo.Value);
                 else
-                    Controller.SDK.TakePhoto();
+                    CameraHandler.TakePhoto();
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
@@ -147,20 +146,20 @@ namespace CanonCaptureFilter
         {
             try
             {
-                if (!Controller.SDK.IsFilming)
+                if (!CameraHandler.IsFilming)
                 {
                     if (STComputerButton.Checked || STBothButton.Checked)
                     {
                         Directory.CreateDirectory(SavePathTextBox.Text);
-                        Controller.SDK.StartFilming(SavePathTextBox.Text);
+                        CameraHandler.StartFilming(SavePathTextBox.Text);
                     }
                     else
-                        Controller.SDK.StartFilming();
+                        CameraHandler.StartFilming();
                     RecordVideoButton.Text = "Stop Video";
                 }
                 else
                 {
-                    Controller.SDK.StopFilming();
+                    CameraHandler.StopFilming();
                     RecordVideoButton.Text = "Record Video";
                 }
             }
@@ -175,7 +174,7 @@ namespace CanonCaptureFilter
                 if (SaveFolderBrowser.ShowDialog() == DialogResult.OK)
                 {
                     SavePathTextBox.Text = SaveFolderBrowser.SelectedPath;
-                    Controller.SDK.ImageSaveDirectory = SavePathTextBox.Text;
+                    CameraHandler.ImageSaveDirectory = SavePathTextBox.Text;
                 }
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
@@ -183,9 +182,9 @@ namespace CanonCaptureFilter
 
         private void AvCoBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try 
+            try
             {
-                Controller.SDK.SetSetting(EDSDK.PropID_Av, CameraValues.AV((string)AvCoBox.SelectedItem)); 
+                CameraHandler.SetSetting(EDSDK.PropID_Av, CameraValues.AV((string)AvCoBox.SelectedItem));
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
@@ -194,7 +193,7 @@ namespace CanonCaptureFilter
         {
             try
             {
-                Controller.SDK.SetSetting(EDSDK.PropID_Tv, CameraValues.TV((string)TvCoBox.SelectedItem));
+                CameraHandler.SetSetting(EDSDK.PropID_Tv, CameraValues.TV((string)TvCoBox.SelectedItem));
                 BulbUpDo.Enabled = (string)TvCoBox.SelectedItem == "Bulb";
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
@@ -202,9 +201,9 @@ namespace CanonCaptureFilter
 
         private void ISOCoBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            try 
+            try
             {
-                Controller.SDK.SetSetting(EDSDK.PropID_ISOSpeed, CameraValues.ISO((string)ISOCoBox.SelectedItem)); 
+                CameraHandler.SetSetting(EDSDK.PropID_ISOSpeed, CameraValues.ISO((string)ISOCoBox.SelectedItem));
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
@@ -215,14 +214,14 @@ namespace CanonCaptureFilter
             {
                 switch (WBCoBox.SelectedIndex)
                 {
-                    case 0: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Auto); break;
-                    case 1: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Daylight); break;
-                    case 2: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Cloudy); break;
-                    case 3: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Tangsten); break;
-                    case 4: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Fluorescent); break;
-                    case 5: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Strobe); break;
-                    case 6: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_WhitePaper); break;
-                    case 7: Controller.SDK.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Shade); break;
+                    case 0: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Auto); break;
+                    case 1: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Daylight); break;
+                    case 2: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Cloudy); break;
+                    case 3: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Tangsten); break;
+                    case 4: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Fluorescent); break;
+                    case 5: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Strobe); break;
+                    case 6: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_WhitePaper); break;
+                    case 7: CameraHandler.SetSetting(EDSDK.PropID_WhiteBalance, EDSDK.WhiteBalance_Shade); break;
                 }
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
@@ -234,21 +233,21 @@ namespace CanonCaptureFilter
             {
                 if (STCameraButton.Checked)
                 {
-                    Controller.SDK.SetSetting(EDSDK.PropID_SaveTo, (uint)EDSDK.EdsSaveTo.Camera);
+                    CameraHandler.SetSetting(EDSDK.PropID_SaveTo, (uint)EDSDK.EdsSaveTo.Camera);
                     BrowseButton.Enabled = false;
                     SavePathTextBox.Enabled = false;
                 }
                 else
                 {
                     if (STComputerButton.Checked)
-                        Controller.SDK.SetSetting(EDSDK.PropID_SaveTo, (uint)EDSDK.EdsSaveTo.Host);
+                        CameraHandler.SetSetting(EDSDK.PropID_SaveTo, (uint)EDSDK.EdsSaveTo.Host);
                     else if (STBothButton.Checked)
-                        Controller.SDK.SetSetting(EDSDK.PropID_SaveTo, (uint)EDSDK.EdsSaveTo.Both);
-                    Controller.SDK.SetCapacity();
+                        CameraHandler.SetSetting(EDSDK.PropID_SaveTo, (uint)EDSDK.EdsSaveTo.Both);
+                    CameraHandler.SetCapacity();
                     BrowseButton.Enabled = true;
                     SavePathTextBox.Enabled = true;
                     Directory.CreateDirectory(SavePathTextBox.Text);
-                    Controller.SDK.ImageSaveDirectory = SavePathTextBox.Text;
+                    CameraHandler.ImageSaveDirectory = SavePathTextBox.Text;
                 }
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
@@ -262,14 +261,14 @@ namespace CanonCaptureFilter
         {
             try
             {
-                if (!Controller.SDK.IsLiveViewOn)
+                if (!CameraHandler.IsLiveViewOn)
                 {
-                    Controller.SDK.StartLiveView();
+                    CameraHandler.StartLiveView();
                     LiveViewButton.Text = "Stop LV";
                 }
                 else
                 {
-                    Controller.SDK.StopLiveView();
+                    CameraHandler.StopLiveView();
                     LiveViewButton.Text = "Start LV";
                 }
             }
@@ -280,11 +279,11 @@ namespace CanonCaptureFilter
         {
             try
             {
-                if (Controller.SDK.IsLiveViewOn && Controller.SDK.IsCoordSystemSet)
+                if (CameraHandler.IsLiveViewOn && CameraHandler.IsCoordSystemSet)
                 {
-                    ushort x = (ushort)((e.X / (double)myLiveViewPicBox.Width) * Controller.SDK.Evf_CoordinateSystem.width);
-                    ushort y = (ushort)((e.Y / (double)myLiveViewPicBox.Height) * Controller.SDK.Evf_CoordinateSystem.height);
-                    Controller.SDK.SetManualWBEvf(x, y);
+                    ushort x = (ushort)((e.X / (double)myLiveViewPicBox.Width) * CameraHandler.Evf_CoordinateSystem.width);
+                    ushort y = (ushort)((e.Y / (double)myLiveViewPicBox.Height) * CameraHandler.Evf_CoordinateSystem.height);
+                    CameraHandler.SetManualWBEvf(x, y);
                 }
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
@@ -294,45 +293,45 @@ namespace CanonCaptureFilter
         {
             try
             {
-                LVBw = myLiveViewPicBox.Width;
-                LVBh = myLiveViewPicBox.Height;
+                m_LVBw = myLiveViewPicBox.Width;
+                m_LVBh = myLiveViewPicBox.Height;
             }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
         private void FocusNear3Button_Click(object sender, EventArgs e)
         {
-            try { Controller.SDK.SetFocus(EDSDK.EvfDriveLens_Near3);  }
+            try { CameraHandler.SetFocus(EDSDK.EvfDriveLens_Near3); }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
         private void FocusNear2Button_Click(object sender, EventArgs e)
         {
-            try { Controller.SDK.SetFocus(EDSDK.EvfDriveLens_Near2); }
+            try { CameraHandler.SetFocus(EDSDK.EvfDriveLens_Near2); }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
         private void FocusNear1Button_Click(object sender, EventArgs e)
         {
-            try { Controller.SDK.SetFocus(EDSDK.EvfDriveLens_Near1); }
+            try { CameraHandler.SetFocus(EDSDK.EvfDriveLens_Near1); }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
         private void FocusFar1Button_Click(object sender, EventArgs e)
         {
-            try { Controller.SDK.SetFocus(EDSDK.EvfDriveLens_Far1); }
+            try { CameraHandler.SetFocus(EDSDK.EvfDriveLens_Far1); }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
         private void FocusFar2Button_Click(object sender, EventArgs e)
         {
-            try { Controller.SDK.SetFocus(EDSDK.EvfDriveLens_Far2); }
+            try { CameraHandler.SetFocus(EDSDK.EvfDriveLens_Far2); }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
         private void FocusFar3Button_Click(object sender, EventArgs e)
         {
-            try { Controller.SDK.SetFocus(EDSDK.EvfDriveLens_Far3); }
+            try { CameraHandler.SetFocus(EDSDK.EvfDriveLens_Far3); }
             catch (Exception ex) { ReportError(ex.Message, false); }
         }
 
@@ -342,7 +341,7 @@ namespace CanonCaptureFilter
 
         private void CloseSession()
         {
-            Controller.SDK.CloseSession();
+            CameraHandler.CloseSession();
             AvCoBox.Items.Clear();
             TvCoBox.Items.Clear();
             ISOCoBox.Items.Clear();
@@ -356,60 +355,69 @@ namespace CanonCaptureFilter
         private void RefreshCamera()
         {
             CameraListBox.Items.Clear();
-            CamList = Controller.SDK.GetCameraList();
-            foreach (Camera cam in CamList) CameraListBox.Items.Add(cam.Info.szDeviceDescription);
-            if (Controller.SDK.CameraSessionOpen) CameraListBox.SelectedIndex = CamList.FindIndex(t => t.Ref == Controller.SDK.MainCamera.Ref);
-            else if (CamList.Count > 0) CameraListBox.SelectedIndex = 0;
+            m_CamList = CameraHandler.GetCameraList();
+            foreach (Camera cam in m_CamList)
+                CameraListBox.Items.Add(cam.Info.szDeviceDescription);
+
+            if (CameraHandler.CameraSessionOpen)
+                CameraListBox.SelectedIndex = m_CamList.FindIndex(t => t.Ref == CameraHandler.MainCamera.Ref);
+            else if (m_CamList.Count > 0)
+                CameraListBox.SelectedIndex = 0;
         }
 
         private void OpenSession()
         {
-            if (CameraListBox.SelectedIndex >= 0)
+            if (CameraListBox.SelectedIndex < 0)
+                return;
+            CameraHandler.OpenSession(m_CamList[CameraListBox.SelectedIndex]);
+            SessionButton.Text = "Close Session";
+            string cameraname = CameraHandler.MainCamera.Info.szDeviceDescription;
+            SessionLabel.Text = cameraname;
+            // MFC
+            //if (CameraHandler.GetSetting(EDSDK.PropID_AEMode) != EDSDK.AEMode_Manual) MessageBox.Show("Camera is not in manual mode. Some features might not work!");
+
+            m_AvList = CameraHandler.GetSettingsList((uint)EDSDK.PropID_Av);
+            foreach (int Av in m_AvList) AvCoBox.Items.Add(CameraValues.AV((uint)Av));
+            AvCoBox.SelectedIndex = AvCoBox.Items.IndexOf(CameraValues.AV((uint)CameraHandler.GetSetting((uint)EDSDK.PropID_Av)));
+
+            m_TvList = CameraHandler.GetSettingsList((uint)EDSDK.PropID_Tv);
+            foreach (int Tv in m_TvList) TvCoBox.Items.Add(CameraValues.TV((uint)Tv));
+            TvCoBox.SelectedIndex = TvCoBox.Items.IndexOf(CameraValues.TV((uint)CameraHandler.GetSetting((uint)EDSDK.PropID_Tv)));
+
+            m_ISOList = CameraHandler.GetSettingsList((uint)EDSDK.PropID_ISOSpeed);
+            foreach (int ISO in m_ISOList) ISOCoBox.Items.Add(CameraValues.ISO((uint)ISO));
+            ISOCoBox.SelectedIndex = ISOCoBox.Items.IndexOf(CameraValues.ISO((uint)CameraHandler.GetSetting((uint)EDSDK.PropID_ISOSpeed)));
+
+            int wbidx = (int)CameraHandler.GetSetting((uint)EDSDK.PropID_WhiteBalance);
+            switch (wbidx)
             {
-                Controller.SDK.OpenSession(CamList[CameraListBox.SelectedIndex]);
-                SessionButton.Text = "Close Session";
-                string cameraname = Controller.SDK.MainCamera.Info.szDeviceDescription;
-                SessionLabel.Text = cameraname;
-                // MFC
-                //if (CameraHandler.GetSetting(EDSDK.PropID_AEMode) != EDSDK.AEMode_Manual) MessageBox.Show("Camera is not in manual mode. Some features might not work!");
-                AvList = Controller.SDK.GetSettingsList((uint)EDSDK.PropID_Av);
-                TvList = Controller.SDK.GetSettingsList((uint)EDSDK.PropID_Tv);
-                ISOList = Controller.SDK.GetSettingsList((uint)EDSDK.PropID_ISOSpeed);
-                foreach (int Av in AvList) AvCoBox.Items.Add(CameraValues.AV((uint)Av));
-                foreach (int Tv in TvList) TvCoBox.Items.Add(CameraValues.TV((uint)Tv));
-                foreach (int ISO in ISOList) ISOCoBox.Items.Add(CameraValues.ISO((uint)ISO));
-                AvCoBox.SelectedIndex = AvCoBox.Items.IndexOf(CameraValues.AV((uint)Controller.SDK.GetSetting((uint)EDSDK.PropID_Av)));
-                TvCoBox.SelectedIndex = TvCoBox.Items.IndexOf(CameraValues.TV((uint)Controller.SDK.GetSetting((uint)EDSDK.PropID_Tv)));
-                ISOCoBox.SelectedIndex = ISOCoBox.Items.IndexOf(CameraValues.ISO((uint)Controller.SDK.GetSetting((uint)EDSDK.PropID_ISOSpeed)));
-                int wbidx = (int)Controller.SDK.GetSetting((uint)EDSDK.PropID_WhiteBalance);
-                switch (wbidx)
-                {
-                    case EDSDK.WhiteBalance_Auto: WBCoBox.SelectedIndex = 0; break;
-                    case EDSDK.WhiteBalance_Daylight: WBCoBox.SelectedIndex = 1; break;
-                    case EDSDK.WhiteBalance_Cloudy: WBCoBox.SelectedIndex = 2; break;
-                    case EDSDK.WhiteBalance_Tangsten: WBCoBox.SelectedIndex = 3; break;
-                    case EDSDK.WhiteBalance_Fluorescent: WBCoBox.SelectedIndex = 4; break;
-                    case EDSDK.WhiteBalance_Strobe: WBCoBox.SelectedIndex = 5; break;
-                    case EDSDK.WhiteBalance_WhitePaper: WBCoBox.SelectedIndex = 6; break;
-                    case EDSDK.WhiteBalance_Shade: WBCoBox.SelectedIndex = 7; break;
-                    default: WBCoBox.SelectedIndex = -1; break;
-                }
-                SettingsGroupBox.Enabled = true;
-                LiveViewGroupBox.Enabled = true;
+                case EDSDK.WhiteBalance_Auto: WBCoBox.SelectedIndex = 0; break;
+                case EDSDK.WhiteBalance_Daylight: WBCoBox.SelectedIndex = 1; break;
+                case EDSDK.WhiteBalance_Cloudy: WBCoBox.SelectedIndex = 2; break;
+                case EDSDK.WhiteBalance_Tangsten: WBCoBox.SelectedIndex = 3; break;
+                case EDSDK.WhiteBalance_Fluorescent: WBCoBox.SelectedIndex = 4; break;
+                case EDSDK.WhiteBalance_Strobe: WBCoBox.SelectedIndex = 5; break;
+                case EDSDK.WhiteBalance_WhitePaper: WBCoBox.SelectedIndex = 6; break;
+                case EDSDK.WhiteBalance_Shade: WBCoBox.SelectedIndex = 7; break;
+                default: WBCoBox.SelectedIndex = -1; break;
             }
+            SettingsGroupBox.Enabled = true;
+            LiveViewGroupBox.Enabled = true;
         }
 
         private void ReportError(string message, bool lockdown)
         {
             int errc;
-            lock (ErrLock) { errc = ++ErrCount; }
+            lock (m_ErrLock) { errc = ++m_ErrCount; }
 
             if (lockdown) EnableUI(false);
 
-            if (errc < 4) MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (errc == 4) MessageBox.Show("Many errors happened!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (errc < 4)
+                MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else if (errc == 4)
+                MessageBox.Show("Many errors happened!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-            lock (ErrLock) { ErrCount--; }
+            lock (m_ErrLock) { m_ErrCount--; }
         }
 
         private void EnableUI(bool enable)

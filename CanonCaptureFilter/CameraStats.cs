@@ -5,6 +5,9 @@ using System.Timers;
 
 namespace CanonCaptureFilter
 {
+    /// <summary>
+    /// Gather statistics on the camera operation
+    /// </summary>
     class CameraStats
     {
         public CameraStats() => m_timer.Elapsed += Timer_Elapsed;
@@ -48,10 +51,13 @@ namespace CanonCaptureFilter
         /// <summary> Total bytes received </summary>
         public long BytesReceived { get; private set; }
 
+        /// <summary> Bitmap width </summary>
         public int Width { get; private set; }
 
+        /// <summary> Bitmap height </summary>
         public int Height { get; private set; }
 
+        /// <summary> Bitmap bits per pixel </summary>
         public int BitDepth { get; private set; }
 
         #endregion
@@ -100,7 +106,7 @@ namespace CanonCaptureFilter
         /// Update statistics
         /// </summary>
         /// <param name="frame"></param>
-        public void UpdateStats(Bitmap frame)
+        public void Update(Bitmap frame)
         {
             if (!m_started)
             {

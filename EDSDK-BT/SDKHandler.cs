@@ -86,7 +86,8 @@ namespace EDSDK_NET
         private bool m_DownloadVideo;
 
         /// <summary>
-        /// For video recording, SaveTo has to be set to Camera. This is to store the previous setting until after the filming.
+        /// For video recording, SaveTo has to be set to Camera. 
+        /// This is to store the previous setting until after the filming.
         /// </summary>
         private uint m_PrevSaveTo;
 
@@ -96,7 +97,8 @@ namespace EDSDK_NET
         private Thread m_LVThread;
 
         /// <summary>
-        /// If true, the live view will be shut off completely. If false, live view will go back to the camera.
+        /// If true, the live view will be shut off completely. 
+        /// If false, live view will go back to the camera.
         /// </summary>
         private bool m_LVoff;
 

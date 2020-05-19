@@ -1,10 +1,8 @@
 ﻿using DirectShow;
 using DirectShow.BaseClasses;
-using EDSDK_NET;
 using Sonic;
 using System;
 using System.Drawing;
-using System.IO;
 using System.Runtime.InteropServices;
 
 namespace CanonCaptureFilter
@@ -25,6 +23,7 @@ namespace CanonCaptureFilter
         AllocatorProperties m_pProperties;
 
         readonly object m_csPinLock = new object();
+
         protected long m_rtStreamOffset = 0;
         protected long m_rtStreamOffsetMax = -1;
 
@@ -49,16 +48,9 @@ namespace CanonCaptureFilter
             {
                 lock (m_Filter.FilterLock)
                 {
-                    //if (m_lastFrame != null)
-                    //{
-                    //    m_lastFrame.Dispose();
-                    //    m_lastFrame = null;
-                    //}
-
+                    //m_bitmapBytes = bitmap.ModifiedBitmap(RotateFlipType.Rotate180FlipNone).GetBytes();
                     m_bitmapBytes = bitmap.GetBytes();
-                    //m_lastFrame = (Bitmap)bitmap.Clone();
                 }
-
             }
             catch { }
         }
@@ -75,21 +67,6 @@ namespace CanonCaptureFilter
             Controller.Stop();
             return hr;
         }
-
-        //protected override int OnThreadCreate()
-        //{
-        //    return base.OnThreadCreate();
-        //}
-
-        //protected override int OnThreadDestroy()
-        //{
-        //    return base.OnThreadDestroy();
-        //}
-
-        //protected override int OnThreadStartPlay()
-        //{
-        //    return base.OnThreadStartPlay();
-        //}
 
         /// <summary>
         /// Called after the format has been decided
@@ -262,7 +239,7 @@ namespace CanonCaptureFilter
         public int GetLatency(out long prtLatency)
         {
             prtLatency = UNITS / 30;
-            AMMediaType mt = this.CurrentMediaType;
+            AMMediaType mt = CurrentMediaType;
             if (mt.majorType == MediaType.Video)
             {
                 {
