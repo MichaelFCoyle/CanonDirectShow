@@ -90,6 +90,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BaseClasses\DirectShow.BaseClasses.csproj">
+      <Project>{2a8e8af5-74e7-49db-a42e-9360fa7a6cc4}</Project>
+      <Name>DirectShow.BaseClasses</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CanonCaptureFilter\CanonCaptureFilter.csproj">
+      <Project>{2EC826E3-4C59-469C-9C82-BCC68B1E612E}</Project>
+      <Name>CanonCaptureFilter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EDSDK-BT\EDSDK-BT.csproj">
       <Project>{88d6066f-000e-497e-9fba-d6b51d75075c}</Project>
       <Name>EDSDK-BT</Name>

@@ -59,7 +59,6 @@ namespace EDSDKLib
 
         #endregion
 
-
         #region Property IDs
 
         /*----------------------------------
@@ -237,7 +236,6 @@ namespace EDSDKLib
         public const uint CameraState_ExitDirectTransfer    = 0x00000003;   
 
          #endregion
-
 
         #region  Enumeration of property value  
 
@@ -868,7 +866,6 @@ namespace EDSDKLib
 		public const uint StateEvent_BulbExposureTime			= 0x00000310;	
 
         #endregion
-
 
         #region Proto type defenition of EDSDK API
 
@@ -2053,7 +2050,6 @@ namespace EDSDKLib
 
         #endregion
 
-
         #region Definition of base Structures
 
         public const int EDS_MAX_NAME = 256;
@@ -2270,7 +2266,6 @@ namespace EDSDKLib
 
         #endregion
 
-
         #region  Definition of error Codes
 
         /*-----------------------------------------------------------------------
@@ -2442,7 +2437,6 @@ namespace EDSDKLib
         public const uint EDS_ERR_LAST_GENERIC_ERROR_PLUS_ONE =                 0x000000F5;
 
         #endregion
-
 
     }
 }

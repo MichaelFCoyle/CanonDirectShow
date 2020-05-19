@@ -21,48 +21,58 @@ namespace EDSDK_NET
         /// The used camera
         /// </summary>
         public Camera MainCamera { get; private set; }
+
         /// <summary>
         /// States if a session with the MainCamera is opened
         /// </summary>
         public bool CameraSessionOpen { get; private set; }
+
         /// <summary>
         /// States if the live view is on or not
         /// </summary>
         public bool IsLiveViewOn { get; private set; }
+
         /// <summary>
         /// States if camera is recording or not
         /// </summary>
         public bool IsFilming { get; private set; }
+
         /// <summary>
         /// Directory to where photos will be saved
         /// </summary>
         public string ImageSaveDirectory { get; set; }
+
         /// <summary>
         /// The focus and zoom border rectangle for live view (set after first use of live view)
         /// </summary>
         public EdsRect Evf_ZoomRect { get; private set; }
+
         /// <summary>
         /// The focus and zoom border position of the live view (set after first use of live view)
         /// </summary>
         public EdsPoint Evf_ZoomPosition { get; private set; }
+
         /// <summary>
         /// The cropping position of the enlarged live view image (set after first use of live view)
         /// </summary>
         public EdsPoint Evf_ImagePosition { get; private set; }
+
         /// <summary>
         /// The live view coordinate system (set after first use of live view)
         /// </summary>
         public EdsSize Evf_CoordinateSystem { get; private set; }
+
         /// <summary>
         /// States if the Evf_CoordinateSystem is already set
         /// </summary>
         public bool IsCoordSystemSet = false;
+
         /// <summary>
         /// Handles errors that happen with the SDK
         /// </summary>
         public uint Error
         {
-            get => EDS_ERR_OK; 
+            get => EDS_ERR_OK;
             set
             {
                 if (value != EDS_ERR_OK)
@@ -70,23 +80,25 @@ namespace EDSDK_NET
             }
         }
 
-
         /// <summary>
         /// States if a finished video should be downloaded from the camera
         /// </summary>
-        private bool DownloadVideo;
+        private bool m_DownloadVideo;
+
         /// <summary>
         /// For video recording, SaveTo has to be set to Camera. This is to store the previous setting until after the filming.
         /// </summary>
-        private uint PrevSaveTo;
+        private uint m_PrevSaveTo;
+
         /// <summary>
         /// The thread on which the live view images will get downloaded continuously
         /// </summary>
-        private Thread LVThread;
+        private Thread m_LVThread;
+
         /// <summary>
         /// If true, the live view will be shut off completely. If false, live view will go back to the camera.
         /// </summary>
-        private bool LVoff;
+        private bool m_LVoff;
 
         #endregion
 
@@ -95,9 +107,13 @@ namespace EDSDK_NET
         #region SDK Events
 
         public event EdsCameraAddedHandler SDKCameraAddedEvent;
+
         public event EdsObjectEventHandler SDKObjectEvent;
+
         public event EdsProgressCallback SDKProgressCallbackEvent;
+
         public event EdsPropertyEventHandler SDKPropertyEvent;
+
         public event EdsStateEventHandler SDKStateEvent;
 
         #endregion
@@ -105,26 +121,33 @@ namespace EDSDK_NET
         #region Custom Events
 
         public delegate void CameraAddedHandler();
+
         public delegate void ProgressHandler(int Progress);
+
         public delegate void StreamUpdate(Stream img);
+
         public delegate void BitmapUpdate(Bitmap bmp);
 
         /// <summary>
         /// Fires if a camera is added
         /// </summary>
         public event CameraAddedHandler CameraAdded;
+
         /// <summary>
         /// Fires if any process reports progress
         /// </summary>
         public event ProgressHandler ProgressChanged;
+
         /// <summary>
         /// Fires if the live view image has been updated
         /// </summary>
         public event StreamUpdate LiveViewUpdated;
+
         /// <summary>
         /// If the camera is disconnected or shuts down, this event is fired
         /// </summary>
         public event EventHandler CameraHasShutdown;
+
         /// <summary>
         /// If an image is downloaded, this event fires with the downloaded image.
         /// </summary>
@@ -154,6 +177,8 @@ namespace EDSDK_NET
             SDKProgressCallbackEvent += new EdsProgressCallback(Camera_SDKProgressCallbackEvent);
             SDKObjectEvent += new EdsObjectEventHandler(Camera_SDKObjectEvent);
         }
+
+        public SDKHandler(Thread lVThread) => m_LVThread = lVThread;
 
         /// <summary>
         /// Get a list of all connected cameras
@@ -208,7 +233,7 @@ namespace EDSDK_NET
                 if (IsLiveViewOn)
                 {
                     StopLiveView();
-                    LVThread.Join(1000);
+                    m_LVThread.Join(1000);
                 }
 
                 //Remove the event handler
@@ -230,15 +255,17 @@ namespace EDSDK_NET
         {
             //close session
             CloseSession();
+
             //terminate SDK
             Error = EdsTerminateSDK();
+
             //stop command execution thread
             STAThread.Shutdown();
         }
 
         #endregion
 
-        #region Eventhandling
+        #region Event handling
 
         /// <summary>
         /// A new camera was plugged into the computer
@@ -267,7 +294,8 @@ namespace EDSDK_NET
                 case ObjectEvent_All: break;
                 case ObjectEvent_DirItemCancelTransferDT: break;
                 case ObjectEvent_DirItemContentChanged: break;
-                case ObjectEvent_DirItemCreated: if (DownloadVideo) { DownloadImage(inRef, ImageSaveDirectory); DownloadVideo = false; }
+                case ObjectEvent_DirItemCreated:
+                    if (m_DownloadVideo) { DownloadImage(inRef, ImageSaveDirectory); m_DownloadVideo = false; }
                     break;
                 case ObjectEvent_DirItemInfoChanged: break;
                 case ObjectEvent_DirItemRemoved: break;
@@ -310,12 +338,9 @@ namespace EDSDK_NET
             //Handle property event here
             switch (inEvent)
             {
-                case PropertyEvent_All:
-                    break;
-                case PropertyEvent_PropertyChanged:
-                    break;
-                case PropertyEvent_PropertyDescChanged:
-                    break;
+                case PropertyEvent_All: break;
+                case PropertyEvent_PropertyChanged: break;
+                case PropertyEvent_PropertyDescChanged: break;
             }
 
             switch (inPropertyID)
@@ -327,175 +352,90 @@ namespace EDSDK_NET
                 case PropID_Artist: break;
                 case PropID_AtCapture_Flag: break;
                 case PropID_Av: break;
-                case PropID_AvailableShots:
-                    break;
-                case PropID_BatteryLevel:
-                    break;
-                case PropID_BatteryQuality:
-                    break;
-                case PropID_BodyIDEx:
-                    break;
-                case PropID_Bracket:
-                    break;
-                case PropID_CFn:
-                    break;
-                case PropID_ClickWBPoint:
-                    break;
-                case PropID_ColorMatrix:
-                    break;
-                case PropID_ColorSaturation:
-                    break;
-                case PropID_ColorSpace:
-                    break;
-                case PropID_ColorTemperature:
-                    break;
-                case PropID_ColorTone:
-                    break;
-                case PropID_Contrast:
-                    break;
-                case PropID_Copyright:
-                    break;
-                case PropID_DateTime:
-                    break;
-                case PropID_DepthOfField:
-                    break;
-                case PropID_DigitalExposure:
-                    break;
-                case PropID_DriveMode:
-                    break;
-                case PropID_EFCompensation:
-                    break;
-                case PropID_Evf_AFMode:
-                    break;
-                case PropID_Evf_ColorTemperature:
-                    break;
-                case PropID_Evf_DepthOfFieldPreview:
-                    break;
-                case PropID_Evf_FocusAid:
-                    break;
-                case PropID_Evf_Histogram:
-                    break;
-                case PropID_Evf_HistogramStatus:
-                    break;
-                case PropID_Evf_ImagePosition:
-                    break;
-                case PropID_Evf_Mode:
-                    break;
-                case PropID_Evf_OutputDevice:
-                    if (IsLiveViewOn == true) DownloadEvf();
-                    break;
-                case PropID_Evf_WhiteBalance:
-                    break;
-                case PropID_Evf_Zoom:
-                    break;
-                case PropID_Evf_ZoomPosition:
-                    break;
-                case PropID_ExposureCompensation:
-                    break;
-                case PropID_FEBracket:
-                    break;
-                case PropID_FilterEffect:
-                    break;
-                case PropID_FirmwareVersion:
-                    break;
-                case PropID_FlashCompensation:
-                    break;
-                case PropID_FlashMode:
-                    break;
-                case PropID_FlashOn:
-                    break;
-                case PropID_FocalLength:
-                    break;
-                case PropID_FocusInfo:
-                    break;
-                case PropID_GPSAltitude:
-                    break;
-                case PropID_GPSAltitudeRef:
-                    break;
-                case PropID_GPSDateStamp:
-                    break;
-                case PropID_GPSLatitude:
-                    break;
-                case PropID_GPSLatitudeRef:
-                    break;
-                case PropID_GPSLongitude:
-                    break;
-                case PropID_GPSLongitudeRef:
-                    break;
-                case PropID_GPSMapDatum:
-                    break;
-                case PropID_GPSSatellites:
-                    break;
-                case PropID_GPSStatus:
-                    break;
-                case PropID_GPSTimeStamp:
-                    break;
-                case PropID_GPSVersionID:
-                    break;
-                case PropID_HDDirectoryStructure:
-                    break;
-                case PropID_ICCProfile:
-                    break;
-                case PropID_ImageQuality:
-                    break;
-                case PropID_ISOBracket:
-                    break;
-                case PropID_ISOSpeed:
-                    break;
-                case PropID_JpegQuality:
-                    break;
-                case PropID_LensName:
-                    break;
-                case PropID_LensStatus:
-                    break;
-                case PropID_Linear:
-                    break;
-                case PropID_MakerName:
-                    break;
-                case PropID_MeteringMode:
-                    break;
-                case PropID_NoiseReduction:
-                    break;
-                case PropID_Orientation:
-                    break;
-                case PropID_OwnerName:
-                    break;
-                case PropID_ParameterSet:
-                    break;
-                case PropID_PhotoEffect:
-                    break;
-                case PropID_PictureStyle:
-                    break;
-                case PropID_PictureStyleCaption:
-                    break;
-                case PropID_PictureStyleDesc:
-                    break;
-                case PropID_ProductName:
-                    break;
-                case PropID_Record:
-                    break;
-                case PropID_RedEye:
-                    break;
-                case PropID_SaveTo:
-                    break;
-                case PropID_Sharpness:
-                    break;
-                case PropID_ToneCurve:
-                    break;
-                case PropID_ToningEffect:
-                    break;
-                case PropID_Tv:
-                    break;
-                case PropID_Unknown:
-                    break;
-                case PropID_WBCoeffs:
-                    break;
-                case PropID_WhiteBalance:
-                    break;
-                case PropID_WhiteBalanceBracket:
-                    break;
-                case PropID_WhiteBalanceShift:
-                    break;
+                case PropID_AvailableShots: break;
+                case PropID_BatteryLevel: break;
+                case PropID_BatteryQuality: break;
+                case PropID_BodyIDEx: break;
+                case PropID_Bracket: break;
+                case PropID_CFn: break;
+                case PropID_ClickWBPoint: break;
+                case PropID_ColorMatrix: break;
+                case PropID_ColorSaturation: break;
+                case PropID_ColorSpace: break;
+                case PropID_ColorTemperature: break;
+                case PropID_ColorTone: break;
+                case PropID_Contrast: break;
+                case PropID_Copyright: break;
+                case PropID_DateTime: break;
+                case PropID_DepthOfField: break;
+                case PropID_DigitalExposure: break;
+                case PropID_DriveMode: break;
+                case PropID_EFCompensation: break;
+                case PropID_Evf_AFMode: break;
+                case PropID_Evf_ColorTemperature: break;
+                case PropID_Evf_DepthOfFieldPreview: break;
+                case PropID_Evf_FocusAid: break;
+                case PropID_Evf_Histogram: break;
+                case PropID_Evf_HistogramStatus: break;
+                case PropID_Evf_ImagePosition: break;
+                case PropID_Evf_Mode: break;
+                case PropID_Evf_OutputDevice: if (IsLiveViewOn == true) DownloadEvf(); break;
+                case PropID_Evf_WhiteBalance: break;
+                case PropID_Evf_Zoom: break;
+                case PropID_Evf_ZoomPosition: break;
+                case PropID_ExposureCompensation: break;
+                case PropID_FEBracket: break;
+                case PropID_FilterEffect: break;
+                case PropID_FirmwareVersion: break;
+                case PropID_FlashCompensation: break;
+                case PropID_FlashMode: break;
+                case PropID_FlashOn: break;
+                case PropID_FocalLength: break;
+                case PropID_FocusInfo: break;
+                case PropID_GPSAltitude: break;
+                case PropID_GPSAltitudeRef: break;
+                case PropID_GPSDateStamp: break;
+                case PropID_GPSLatitude: break;
+                case PropID_GPSLatitudeRef: break;
+                case PropID_GPSLongitude: break;
+                case PropID_GPSLongitudeRef: break;
+                case PropID_GPSMapDatum: break;
+                case PropID_GPSSatellites: break;
+                case PropID_GPSStatus: break;
+                case PropID_GPSTimeStamp: break;
+                case PropID_GPSVersionID: break;
+                case PropID_HDDirectoryStructure: break;
+                case PropID_ICCProfile: break;
+                case PropID_ImageQuality: break;
+                case PropID_ISOBracket: break;
+                case PropID_ISOSpeed: break;
+                case PropID_JpegQuality: break;
+                case PropID_LensName: break;
+                case PropID_LensStatus: break;
+                case PropID_Linear: break;
+                case PropID_MakerName: break;
+                case PropID_MeteringMode: break;
+                case PropID_NoiseReduction: break;
+                case PropID_Orientation: break;
+                case PropID_OwnerName: break;
+                case PropID_ParameterSet: break;
+                case PropID_PhotoEffect: break;
+                case PropID_PictureStyle: break;
+                case PropID_PictureStyleCaption: break;
+                case PropID_PictureStyleDesc: break;
+                case PropID_ProductName: break;
+                case PropID_Record: break;
+                case PropID_RedEye: break;
+                case PropID_SaveTo: break;
+                case PropID_Sharpness: break;
+                case PropID_ToneCurve: break;
+                case PropID_ToningEffect: break;
+                case PropID_Tv: break;
+                case PropID_Unknown: break;
+                case PropID_WBCoeffs: break;
+                case PropID_WhiteBalance: break;
+                case PropID_WhiteBalanceBracket: break;
+                case PropID_WhiteBalanceShift: break;
             }
             return EDS_ERR_OK;
         }
@@ -512,27 +452,19 @@ namespace EDSDK_NET
             //Handle state event here
             switch (inEvent)
             {
-                case StateEvent_All:
-                    break;
-                case StateEvent_AfResult:
-                    break;
-                case StateEvent_BulbExposureTime:
-                    break;
-                case StateEvent_CaptureError:
-                    break;
-                case StateEvent_InternalError:
-                    break;
-                case StateEvent_JobStatusChanged:
-                    break;
+                case StateEvent_All: break;
+                case StateEvent_AfResult: break;
+                case StateEvent_BulbExposureTime: break;
+                case StateEvent_CaptureError: break;
+                case StateEvent_InternalError: break;
+                case StateEvent_JobStatusChanged: break;
                 case StateEvent_Shutdown:
                     CameraSessionOpen = false;
-                    if (LVThread.IsAlive) LVThread.Abort();
+                    if (m_LVThread.IsAlive) m_LVThread.Abort();
                     CameraHasShutdown?.Invoke(this, new EventArgs());
                     break;
-                case StateEvent_ShutDownTimerUpdate:
-                    break;
-                case StateEvent_WillSoonShutDown:
-                    break;
+                case StateEvent_ShutDownTimerUpdate: break;
+                case StateEvent_WillSoonShutDown: break;
             }
             return EDS_ERR_OK;
         }
@@ -559,7 +491,7 @@ namespace EDSDK_NET
                 //create filestream to data
                 Error = EdsCreateFileStream(CurrentPhoto, EdsFileCreateDisposition.CreateAlways, EdsAccess.ReadWrite, out IntPtr streamRef);
                 //download file
-                lock (STAThread.ExecLock) { DownloadData(ObjectPointer, streamRef); }
+                lock (STAThread.m_execLock) { DownloadData(ObjectPointer, streamRef); }
                 //release stream
                 Error = EdsRelease(streamRef);
             }, true);
@@ -588,7 +520,7 @@ namespace EDSDK_NET
                     Error = EdsCreateMemoryStream(dirInfo.Size, out IntPtr streamRef);
 
                     //download data to the stream
-                    lock (STAThread.ExecLock) { DownloadData(ObjectPointer, streamRef); }
+                    lock (STAThread.m_execLock) { DownloadData(ObjectPointer, streamRef); }
                     Error = EdsGetPointer(streamRef, out jpgPointer);
                     Error = EdsGetLength(streamRef, out ulong length);
 
@@ -904,7 +836,7 @@ namespace EDSDK_NET
         /// </summary>
         public void StopLiveView(bool LVoff = true)
         {
-            this.LVoff = LVoff;
+            m_LVoff = LVoff;
             IsLiveViewOn = false;
         }
 
@@ -913,7 +845,7 @@ namespace EDSDK_NET
         /// </summary>
         private void DownloadEvf()
         {
-            LVThread = STAThread.Create(delegate
+            m_LVThread = STAThread.Create(delegate
             {
                 try
                 {
@@ -928,7 +860,7 @@ namespace EDSDK_NET
                     //run live view
                     while (IsLiveViewOn)
                     {
-                        lock (STAThread.ExecLock)
+                        lock (STAThread.m_execLock)
                         {
                             //download current live view image
                             err = EdsCreateEvfImageRef(stream, out EvfImageRef);
@@ -961,11 +893,11 @@ namespace EDSDK_NET
                     //release and finish
                     if (stream != IntPtr.Zero) { Error = EdsRelease(stream); }
                     //stop the live view
-                    SetSetting(PropID_Evf_OutputDevice, LVoff ? 0 : EvfOutputDevice_TFT);
+                    SetSetting(PropID_Evf_OutputDevice, m_LVoff ? 0 : EvfOutputDevice_TFT);
                 }
                 catch { IsLiveViewOn = false; }
             });
-            LVThread.Start();
+            m_LVThread.Start();
         }
 
         /// <summary>
@@ -1030,7 +962,7 @@ namespace EDSDK_NET
             if (!IsFilming)
             {
                 StartFilming();
-                this.DownloadVideo = true;
+                m_DownloadVideo = true;
                 ImageSaveDirectory = FilePath;
             }
         }
@@ -1048,10 +980,10 @@ namespace EDSDK_NET
                 IsFilming = true;
 
                 //to restore the current setting after recording
-                PrevSaveTo = GetSetting(PropID_SaveTo);
+                m_PrevSaveTo = GetSetting(PropID_SaveTo);
                 //when recording videos, it has to be saved on the camera internal memory
                 SetSetting(PropID_SaveTo, (uint)EdsSaveTo.Camera);
-                this.DownloadVideo = false;
+                m_DownloadVideo = false;
                 //start the video recording
                 SendSDKCommand(delegate { Error = EdsSetPropertyData(MainCamera.Ref, PropID_Record, 0, 4, 4); });
             }
@@ -1072,7 +1004,7 @@ namespace EDSDK_NET
                     Error = EdsSetPropertyData(MainCamera.Ref, PropID_Record, 0, 4, 0);
                 });
                 //set back to previous state
-                SetSetting(PropID_SaveTo, PrevSaveTo);
+                SetSetting(PropID_SaveTo, m_PrevSaveTo);
                 IsFilming = false;
             }
         }
@@ -1091,7 +1023,7 @@ namespace EDSDK_NET
             SendSDKCommand(delegate
             {
                 //send command to camera
-                lock (STAThread.ExecLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_PressShutterButton, (int)state); };
+                lock (STAThread.m_execLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_PressShutterButton, (int)state); };
             }, true);
         }
 
@@ -1104,7 +1036,7 @@ namespace EDSDK_NET
             SendSDKCommand(delegate
             {
                 //send command to camera
-                lock (STAThread.ExecLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_TakePicture, 0); };
+                lock (STAThread.m_execLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_TakePicture, 0); };
             }, true);
         }
 
@@ -1121,11 +1053,11 @@ namespace EDSDK_NET
             SendSDKCommand(delegate
             {
                 //open the shutter
-                lock (STAThread.ExecLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_BulbStart, 0); }
+                lock (STAThread.m_execLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_BulbStart, 0); }
                 //wait for the specified time
                 Thread.Sleep((int)BulbTime);
                 //close shutter
-                lock (STAThread.ExecLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_BulbEnd, 0); }
+                lock (STAThread.m_execLock) { Error = EdsSendCommand(MainCamera.Ref, CameraCommand_BulbEnd, 0); }
             }, true);
         }
 

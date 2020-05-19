@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using EDSDK_NET;
 using EDSDKLib;
 
-namespace WinFormsUI
+namespace CanonCameraSource
 {
     public partial class MainForm : Form
     {

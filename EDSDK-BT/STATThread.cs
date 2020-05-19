@@ -11,35 +11,38 @@ namespace EDSDK_NET
         /// <summary>
         /// The object that is used to lock the live view thread
         /// </summary>
-        public static readonly object ExecLock = new object();
+        public static readonly object m_execLock = new object();
+
         /// <summary>
         /// States if the calling thread is an STA thread or not
         /// </summary>
-        public static bool IsSTAThread
-        {
-            get { return Thread.CurrentThread.GetApartmentState() == ApartmentState.STA; }
-        }
+        public static bool IsSTAThread => Thread.CurrentThread.GetApartmentState() == ApartmentState.STA;
 
         /// <summary>
         /// The main thread where everything will be executed on
         /// </summary>
-        private static Thread main;
+        private static Thread m_main;
+
         /// <summary>
         /// The action to be executed
         /// </summary>
-        private static Action runAction;
+        private static Action m_runAction;
+
         /// <summary>
         /// Storage for an exception that might have happened on the execution thread
         /// </summary>
-        private static Exception runException;
+        private static Exception m_runException;
+
         /// <summary>
         /// States if the execution thread is currently running
         /// </summary>
-        private static bool isRunning = false;
+        private static bool m_isRunning = false;
+
         /// <summary>
         /// Lock object to make sure only one command at a time is executed
         /// </summary>
-        private static readonly object runLock = new object();
+        private static readonly object m_runLock = new object();
+
         /// <summary>
         /// Lock object to synchronize between execution and calling thread
         /// </summary>
@@ -50,11 +53,11 @@ namespace EDSDK_NET
         /// </summary>
         internal static void Init()
         {
-            if (!isRunning)
+            if (!m_isRunning)
             {
-                main = Create(SafeExecutionLoop);
-                isRunning = true;
-                main.Start();
+                m_main = Create(SafeExecutionLoop);
+                m_isRunning = true;
+                m_main.Start();
             }
         }
 
@@ -63,11 +66,11 @@ namespace EDSDK_NET
         /// </summary>
         internal static void Shutdown()
         {
-            if (isRunning)
+            if (m_isRunning)
             {
-                isRunning = false;
+                m_isRunning = false;
                 lock (threadLock) { Monitor.Pulse(threadLock); }
-                main.Join();
+                m_main.Join();
             }
         }
 
@@ -90,21 +93,21 @@ namespace EDSDK_NET
         /// <param name="a">The SDK command</param>
         public static void ExecuteSafely(Action a)
         {
-            lock (runLock)
+            lock (m_runLock)
             {
-                if (!isRunning) return;
+                if (!m_isRunning) return;
 
                 if (IsSTAThread)
                 {
-                    runAction = a;
+                    m_runAction = a;
                     lock (threadLock)
                     {
                         Monitor.Pulse(threadLock);
                         Monitor.Wait(threadLock);
                     }
-                    if (runException != null) throw runException;
+                    if (m_runException != null) throw m_runException;
                 }
-                else lock (ExecLock) { a(); }
+                else lock (m_execLock) { a(); }
             }
         }
 
@@ -127,10 +130,14 @@ namespace EDSDK_NET
                 while (true)
                 {
                     Monitor.Wait(threadLock);
-                    if (!isRunning) return;
-                    runException = null;
-                    try { lock (ExecLock) { runAction(); } }
-                    catch (Exception ex) { runException = ex; }
+                    
+                    if (!m_isRunning) return;
+
+                    m_runException = null;
+                    
+                    try { lock (m_execLock) { m_runAction(); } }
+                    catch (Exception ex) { m_runException = ex; }
+                    
                     Monitor.Pulse(threadLock);
                 }
             }

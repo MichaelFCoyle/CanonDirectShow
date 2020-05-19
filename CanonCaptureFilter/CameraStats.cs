@@ -1,20 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace CanonCaptureFilter
 {
     class CameraStats
     {
-        public CameraStats()
-        {
-            m_timer.Elapsed += Timer_Elapsed;
-        }
+        public CameraStats() => m_timer.Elapsed += Timer_Elapsed;
 
         #region fields
 
@@ -49,12 +42,25 @@ namespace CanonCaptureFilter
         /// <summary> The average bitrate </summary>
         public float Bitrate => (BytesReceived / FramesReceived) * AverageFPS;
 
+        /// <summary> Total frames received </summary>
         public int FramesReceived { get; private set; }
 
+        /// <summary> Total bytes received </summary>
         public long BytesReceived { get; private set; }
+
+        public int Width { get; private set; }
+
+        public int Height { get; private set; }
+
+        public int BitDepth { get; private set; }
 
         #endregion
 
+        /// <summary>
+        /// Timer for counting frame rate
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             try
@@ -73,7 +79,7 @@ namespace CanonCaptureFilter
                 {
                     m_stopWatch.Stop();
 
-                    FPS = 1000.0f * m_intervalFrames / m_stopWatch.ElapsedMilliseconds;
+                    FPS = 1000.0f * (float)m_intervalFrames / m_stopWatch.ElapsedMilliseconds;
 
                     m_stopWatch.Reset();
                     m_stopWatch.Start();
@@ -90,6 +96,10 @@ namespace CanonCaptureFilter
             }
         }
 
+        /// <summary>
+        /// Update statistics
+        /// </summary>
+        /// <param name="frame"></param>
         public void UpdateStats(Bitmap frame)
         {
             if (!m_started)
@@ -98,6 +108,10 @@ namespace CanonCaptureFilter
                 m_firstFrame = DateTime.Now;
                 m_timer.Start();
             }
+
+            Width = frame.Width;
+            Height = frame.Height;
+            BitDepth = Image.GetPixelFormatSize(frame.PixelFormat);
 
             FramesReceived++;
             m_intervalFrames++;

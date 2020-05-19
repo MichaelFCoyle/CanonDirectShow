@@ -87,8 +87,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BaseClasses\DirectShow.BaseClasses.csproj">
-      <Project>{2A8E8AF5-74E7-49DB-A42E-9360FA7A6CC4}</Project>
-      <Name>BaseClasses</Name>
+      <Project>{2a8e8af5-74e7-49db-a42e-9360fa7a6cc4}</Project>
+      <Name>DirectShow.BaseClasses</Name>
     </ProjectReference>
     <ProjectReference Include="..\CanonCaptureFilter\CanonCaptureFilter.csproj">
       <Project>{2ec826e3-4c59-469c-9c82-bcc68b1e612e}</Project>

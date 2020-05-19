@@ -1,4 +1,4 @@
-﻿namespace WinFormsUI
+﻿namespace CanonCameraSource
 {
     partial class MainForm
     {

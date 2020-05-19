@@ -31,6 +31,8 @@ namespace DxCapture
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
 
+            Controller.Terminate();
+
             if (!Unregister("CanonCaptureFilter.dll"))
                 Trace.TraceError("Error unregistering assembly: {0}", s_assembly);
         }

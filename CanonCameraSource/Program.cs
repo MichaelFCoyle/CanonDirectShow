@@ -1,25 +1,40 @@
-﻿using System;
+﻿using CanonCaptureFilter;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace WinFormsUI
+namespace CanonCameraSource
 {
     static class Program
     {
+        static readonly string s_assembly = "CanonCaptureFilter.dll";
+
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
         [STAThread]
         static void Main()
         {
-            Register("CanonCaptureFilter.dll");
+            if (!Register(s_assembly))
+            {
+                MessageBox.Show("Error loading Canon Capture Filter - need administrator privileges");
+                Trace.TraceError("Error registering assembly: {0}", s_assembly);
+                return;
+            }
+
+            Controller.Initialize();
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
-            Unregister("CanonCaptureFilter.dll");
+
+            Controller.Terminate();
+
+            if (!Unregister("CanonCaptureFilter.dll"))
+                Trace.TraceError("Error unregistering assembly: {0}", s_assembly);
         }
 
         private static bool Register(string name)

@@ -10,16 +10,17 @@ using System.Runtime.InteropServices;
 namespace CanonCaptureFilter
 {
     [ComVisible(false)]
-    public class CanonSourceStream : 
-        SourceStream, 
-        IAMPushSource, 
+    public class CanonSourceStream :
+        SourceStream,
+        IAMPushSource,
         IKsPropertySet,
         IAMBufferNegotiation
     {
         #region fields
 
         BitmapInfo m_bmi = new BitmapInfo() { bmiHeader = new BitmapInfoHeader() };
-        Bitmap m_lastFrame;
+
+        byte[] m_bitmapBytes;
 
         AllocatorProperties m_pProperties;
 
@@ -46,10 +47,17 @@ namespace CanonCaptureFilter
         {
             try
             {
-                if (m_lastFrame != null)
-                    m_lastFrame.Dispose();
+                lock (m_Filter.FilterLock)
+                {
+                    //if (m_lastFrame != null)
+                    //{
+                    //    m_lastFrame.Dispose();
+                    //    m_lastFrame = null;
+                    //}
 
-                m_lastFrame = bitmap;
+                    m_bitmapBytes = bitmap.GetBytes();
+                    //m_lastFrame = (Bitmap)bitmap.Clone();
+                }
 
             }
             catch { }
@@ -68,20 +76,20 @@ namespace CanonCaptureFilter
             return hr;
         }
 
-        protected override int OnThreadCreate()
-        {
-            return base.OnThreadCreate();
-        }
+        //protected override int OnThreadCreate()
+        //{
+        //    return base.OnThreadCreate();
+        //}
 
-        protected override int OnThreadDestroy()
-        {
-            return base.OnThreadDestroy();
-        }
+        //protected override int OnThreadDestroy()
+        //{
+        //    return base.OnThreadDestroy();
+        //}
 
-        protected override int OnThreadStartPlay()
-        {
-            return base.OnThreadStartPlay();
-        }
+        //protected override int OnThreadStartPlay()
+        //{
+        //    return base.OnThreadStartPlay();
+        //}
 
         /// <summary>
         /// Called after the format has been decided
@@ -93,9 +101,9 @@ namespace CanonCaptureFilter
         {
             if (!IsConnected) return VFW_E_NOT_CONNECTED;
 
-            AllocatorProperties _actual = new AllocatorProperties();
-            HRESULT hr = (HRESULT)GetAllocatorProperties(_actual);
-            if (SUCCEEDED(hr) && _actual.cBuffers <= prop.cBuffers && _actual.cbBuffer <= prop.cbBuffer && _actual.cbAlign == prop.cbAlign)
+            AllocatorProperties actual = new AllocatorProperties();
+            HRESULT hr = (HRESULT)GetAllocatorProperties(actual);
+            if (SUCCEEDED(hr) && actual.cBuffers <= prop.cBuffers && actual.cbBuffer <= prop.cbBuffer && actual.cbAlign == prop.cbAlign)
             {
                 AllocatorProperties Actual = new AllocatorProperties();
                 hr = (HRESULT)pAlloc.SetProperties(prop, Actual);
@@ -120,16 +128,22 @@ namespace CanonCaptureFilter
             prop.cBuffers = 1;
             prop.cbAlign = 1;
             prop.cbPrefix = 0;
-            return pAlloc.SetProperties(prop, _actual);
+            return pAlloc.SetProperties(prop, actual);
         }
 
         public override int FillBuffer(ref IMediaSampleImpl sample)
         {
             sample.GetPointer(out IntPtr ptr);
 
-            var bytes = m_lastFrame.GetBytes();
+            lock (m_Filter.FilterLock)
+            {
+                if (m_bitmapBytes == null)
+                    m_bitmapBytes = new byte[m_bmi.bmiHeader.ImageSize];
 
-            Marshal.Copy(bytes, 0, ptr, bytes.Length);
+                Marshal.Copy(m_bitmapBytes, 0, ptr, m_bitmapBytes.Length);
+
+                m_bitmapBytes = null;
+            }
 
             sample.SetActualDataLength(sample.GetSize());
             sample.SetSyncPoint(true);
@@ -145,13 +159,11 @@ namespace CanonCaptureFilter
         /// <returns></returns>
         public override int GetMediaType(ref AMMediaType pMediaType)
         {
-            //if (m_lastFrame == null)
-            //    return base.GetMediaType(ref pMediaType);
-
             pMediaType.majorType = MediaType.Video;
             pMediaType.formatType = FormatType.VideoInfo;
             pMediaType.temporalCompression = false;
-            var FPS = Controller.FPS;
+            var FPS = (long)Math.Round(Controller.FPS);
+            if (FPS == 0) FPS = 15;
             VideoInfoHeader vih = new VideoInfoHeader
             {
                 AvgTimePerFrame = UNITS / FPS

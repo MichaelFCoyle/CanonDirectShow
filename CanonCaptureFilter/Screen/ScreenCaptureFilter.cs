@@ -246,13 +246,14 @@ namespace CanonCaptureFilter
             return hr;
         }
 
-        public int FillBuffer(ref IMediaSampleImpl _sample)
+        public int FillBuffer(ref IMediaSampleImpl sample)
         {
             try
             {
                 if (m_hBitmap == IntPtr.Zero)
                     m_hBitmap = Api.CreateCompatibleBitmap(m_hScreenDC, m_nWidth, Math.Abs(m_nHeight));
-                _sample.GetPointer(out IntPtr _ptr);
+
+                sample.GetPointer(out IntPtr ptr);
 
                 IntPtr hOldBitmap = Api.SelectObject(m_hMemDC, m_hBitmap);
 
@@ -260,10 +261,10 @@ namespace CanonCaptureFilter
 
                 Api.SelectObject(m_hMemDC, hOldBitmap);
 
-                Api.GetDIBits(m_hMemDC, m_hBitmap, 0, (uint)Math.Abs(m_nHeight), _ptr, ref m_bmi, 0);
+                Api.GetDIBits(m_hMemDC, m_hBitmap, 0, (uint)Math.Abs(m_nHeight), ptr, ref m_bmi, 0);
 
-                _sample.SetActualDataLength(_sample.GetSize());
-                _sample.SetSyncPoint(true);
+                sample.SetActualDataLength(sample.GetSize());
+                sample.SetSyncPoint(true);
                 return NOERROR;
             }
             catch (Exception ex)

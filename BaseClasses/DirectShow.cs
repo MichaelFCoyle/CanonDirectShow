@@ -4607,13 +4607,9 @@ namespace DirectShow
             [Out, MarshalAs(UnmanagedType.LPStruct)] AllocatorProperties pProps
             );
 
-        private delegate int CommitProc(
-            IntPtr pUnk
-            );
+        private delegate int CommitProc(IntPtr pUnk);
 
-        private delegate int DecommitProc(
-            IntPtr pUnk
-            );
+        private delegate int DecommitProc(IntPtr pUnk);
 
         private delegate int GetBufferProc(
             IntPtr pUnk,
@@ -4623,20 +4619,13 @@ namespace DirectShow
             [In, MarshalAs(UnmanagedType.U4)] int dwFlags
             );
 
-        private delegate int ReleaseBufferProc(
-            IntPtr pUnk,
-            [In] IntPtr pBuffer
-            );
+        private delegate int ReleaseBufferProc(IntPtr pUnk, [In] IntPtr pBuffer);
 
         #endregion
 
         #region Constructor
 
-        public IMemAllocatorImpl(IntPtr pMemAllocator)
-            : base(pMemAllocator, false)
-        {
-
-        }
+        public IMemAllocatorImpl(IntPtr pMemAllocator) : base(pMemAllocator, false) { }
 
         #endregion
 
@@ -4646,83 +4635,68 @@ namespace DirectShow
         {
             if (m_pUnknown == IntPtr.Zero) return E_NOINTERFACE;
 
-            SetPropertiesProc _Proc = GetProcDelegate<SetPropertiesProc>(3);
+            SetPropertiesProc Proc = GetProcDelegate<SetPropertiesProc>(3);
 
-            if (_Proc == null) return E_UNEXPECTED;
+            if (Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pRequest, pActual
-                        );
+            return (HRESULT)Proc(m_pUnknown, pRequest, pActual);
         }
 
         public int GetProperties(AllocatorProperties pProps)
         {
             if (m_pUnknown == IntPtr.Zero) return E_NOINTERFACE;
 
-            GetPropertiesProc _Proc = GetProcDelegate<GetPropertiesProc>(4);
+            GetPropertiesProc Proc = GetProcDelegate<GetPropertiesProc>(4);
 
-            if (_Proc == null) return E_UNEXPECTED;
+            if (Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pProps
-                        );
+            return (HRESULT)Proc(m_pUnknown, pProps);
         }
 
         public int Commit()
         {
             if (m_pUnknown == IntPtr.Zero) return E_NOINTERFACE;
 
-            CommitProc _Proc = GetProcDelegate<CommitProc>(5);
+            CommitProc Proc = GetProcDelegate<CommitProc>(5);
 
-            if (_Proc == null) return E_UNEXPECTED;
+            if (Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown
-                        );
+            return (HRESULT)Proc(m_pUnknown);
         }
 
         public int Decommit()
         {
             if (m_pUnknown == IntPtr.Zero) return E_NOINTERFACE;
 
-            DecommitProc _Proc = GetProcDelegate<DecommitProc>(6);
+            DecommitProc Proc = GetProcDelegate<DecommitProc>(6);
 
-            if (_Proc == null) return E_UNEXPECTED;
+            if (Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown
-                        );
+            return (HRESULT)Proc(m_pUnknown);
         }
 
         public int GetBuffer(out IntPtr ppBuffer, IntPtr pStartTime, IntPtr pEndTime, int dwFlags)
         {
             ppBuffer = IntPtr.Zero;
+
             if (m_pUnknown == IntPtr.Zero) return E_NOINTERFACE;
 
-            GetBufferProc _Proc = GetProcDelegate<GetBufferProc>(7);
+            GetBufferProc Proc = GetProcDelegate<GetBufferProc>(7);
 
-            if (_Proc == null) return E_UNEXPECTED;
+            if (Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        out ppBuffer, pStartTime, pEndTime, dwFlags
-                        );
+            return (HRESULT)Proc(m_pUnknown, out ppBuffer, pStartTime, pEndTime, dwFlags);
         }
 
         public int ReleaseBuffer(IntPtr pBuffer)
         {
             if (m_pUnknown == IntPtr.Zero) return E_NOINTERFACE;
 
-            ReleaseBufferProc _Proc = GetProcDelegate<ReleaseBufferProc>(8);
+            ReleaseBufferProc Proc = GetProcDelegate<ReleaseBufferProc>(8);
 
-            if (_Proc == null) return E_UNEXPECTED;
+            if (Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pBuffer
-                        );
+            return (HRESULT)Proc(m_pUnknown, pBuffer);
         }
 
         #endregion
@@ -4733,34 +4707,19 @@ namespace DirectShow
     {
         #region Delegates
 
-        private delegate int NextProc(
-            IntPtr pUnk,
-            int cMediaTypes, IntPtr ppMediaTypes, IntPtr pcFetched
-            );
+        private delegate int NextProc( IntPtr pUnk, int cMediaTypes, IntPtr ppMediaTypes, IntPtr pcFetched );
 
-        private delegate int SkipProc(
-            IntPtr pUnk,
-            int cMediaTypes
-            );
+        private delegate int SkipProc( IntPtr pUnk, int cMediaTypes );
 
-        private delegate int ResetProc(
-            IntPtr pUnk
-            );
+        private delegate int ResetProc( IntPtr pUnk );
 
-        private delegate int CloneProc(
-            IntPtr pUnk,
-            out IntPtr ppEnum
-            );
+        private delegate int CloneProc( IntPtr pUnk, out IntPtr ppEnum );
 
         #endregion
 
         #region Constructor
 
-        public IEnumMediaTypesImpl(IntPtr pEnum)
-            : base(pEnum, false)
-        {
-
-        }
+        public IEnumMediaTypesImpl(IntPtr pEnum) : base(pEnum, false) { }
 
         #endregion
 
@@ -4774,10 +4733,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        cMediaTypes, ppMediaTypes, pcFetched
-                        );
+            return (HRESULT)_Proc( m_pUnknown, cMediaTypes, ppMediaTypes, pcFetched );
         }
 
         public int Skip(int cMediaTypes)
@@ -4788,10 +4744,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        cMediaTypes
-                        );
+            return (HRESULT)_Proc( m_pUnknown, cMediaTypes );
         }
 
         public int Reset()
@@ -4802,9 +4755,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown
-                        );
+            return (HRESULT)_Proc( m_pUnknown );
         }
 
         public int Clone(out IntPtr ppEnum)
@@ -4817,10 +4768,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        out ppEnum
-                        );
+            return (HRESULT)_Proc( m_pUnknown, out ppEnum );
         }
 
         #endregion
@@ -4843,27 +4791,17 @@ namespace DirectShow
             [In, MarshalAs(UnmanagedType.LPStruct)] AMMediaType pmt
             );
 
-        private delegate int DisconnectProc(
-            IntPtr pUnk
-            );
+        private delegate int DisconnectProc(IntPtr pUnk);
 
-        private delegate int ConnectedToProc(
-            IntPtr pUnk,
-            [Out] out IntPtr ppPin);
+        private delegate int ConnectedToProc(IntPtr pUnk, [Out] out IntPtr ppPin);
 
         private delegate int ConnectionMediaTypeProc(
             IntPtr pUnk,
             [Out, MarshalAs(UnmanagedType.LPStruct)] AMMediaType pmt);
 
-        private delegate int QueryPinInfoProc(
-            IntPtr pUnk,
-            [Out] out PinInfo pInfo
-            );
+        private delegate int QueryPinInfoProc(IntPtr pUnk, [Out] out PinInfo pInfo);
 
-        private delegate int QueryDirectionProc(
-            IntPtr pUnk,
-            out PinDirection pPinDir
-            );
+        private delegate int QueryDirectionProc(IntPtr pUnk, out PinDirection pPinDir);
 
         private delegate int QueryIdProc(
             IntPtr pUnk,
@@ -4884,17 +4822,11 @@ namespace DirectShow
             [In, Out] ref int nPin
             );
 
-        private delegate int EndOfStreamProc(
-            IntPtr pUnk
-            );
+        private delegate int EndOfStreamProc(IntPtr pUnk);
 
-        private delegate int BeginFlushProc(
-            IntPtr pUnk
-            );
+        private delegate int BeginFlushProc(IntPtr pUnk);
 
-        private delegate int EndFlushProc(
-            IntPtr pUnk
-            );
+        private delegate int EndFlushProc(IntPtr pUnk);
 
         private delegate int NewSegmentProc(
             IntPtr pUnk,
@@ -4907,11 +4839,7 @@ namespace DirectShow
 
         #region Constructor
 
-        public IPinImpl(IntPtr pPin)
-            : base(pPin, false)
-        {
-
-        }
+        public IPinImpl(IntPtr pPin) : base(pPin, false) { }
 
         #endregion
 
@@ -4925,10 +4853,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pReceivePin, pmt
-                        );
+            return (HRESULT)_Proc(m_pUnknown, pReceivePin, pmt);
         }
 
         public int ReceiveConnection(IntPtr pReceivePin, AMMediaType pmt)
@@ -4939,10 +4864,7 @@ namespace DirectShow
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        pReceivePin, pmt
-                        );
+            return (HRESULT)_Proc(m_pUnknown, pReceivePin, pmt);
         }
 
         public int Disconnect()

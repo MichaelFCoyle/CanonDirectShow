@@ -9,7 +9,9 @@ namespace CanonCaptureFilter
 {
     public static class Controller
     {
-        static Controller() => m_sdk = new SDKHandler();
+        static Controller() => SDK = new SDKHandler();
+
+        static readonly CameraStats m_stats = new CameraStats();
 
         static bool m_initialized = false;
 
@@ -17,13 +19,15 @@ namespace CanonCaptureFilter
         {
             if (m_initialized) return;
 
-            m_sdk.CameraAdded += HandleCameraAdded;
-            m_sdk.CameraHasShutdown += HandleCameraHasShutdown;
-            m_sdk.LiveViewUpdated += HandleLiveViewUpdated;
-            
+            SDK.CameraAdded += HandleCameraAdded;
+            SDK.CameraHasShutdown += HandleCameraHasShutdown;
+            SDK.LiveViewUpdated += HandleLiveViewUpdated;
+
             OpenSession();
             m_initialized = true;
         }
+
+        public static void Terminate() => SDK.Dispose();
 
         public static void Start() => IsStarted = true;
 
@@ -31,92 +35,86 @@ namespace CanonCaptureFilter
 
         #region properties
 
+        public static SDKHandler SDK { get; }
+
         public static bool IsStarted { get; private set; }
 
-        public static int Width { get; private set; }
-        
-        public static int Height { get; private set; }
-        
-        public static int BitDepth { get; private set; }
+        public static int Width => m_stats.Width;
 
-        public static int FPS { get { return (int)m_stats.FPS; } }
+        public static int Height => m_stats.Height;
+
+        public static int BitDepth => m_stats.BitDepth;
+
+        /// <summary> Instantaneous FPS over the last frame </summary>
+        public static float FPS => m_stats.FPS;
+
+        /// <summary> Average FPS over the entire run </summary>
+        public static float AverageFPS => m_stats.AverageFPS;
 
         #endregion
+
+        #region events
+
+        /// <summary> When a frame is recieved </summary>
+        public static event EventHandler<Bitmap> FrameReceived;
+
+        #endregion
+
+        #region private
 
         private static void OpenSession()
         {
             CloseSession();
-            var cameras = m_sdk.GetCameraList();
+            var cameras = SDK.GetCameraList();
             if (cameras.Count > 0)
             {
-                m_sdk.OpenSession(cameras.First());
-                m_sdk.StartLiveView();
+                SDK.OpenSession(cameras.First());
+                SDK.StartLiveView();
             }
         }
 
         private static void CloseSession()
         {
-            if(m_sdk.IsLiveViewOn)
-                m_sdk.StopLiveView();
-            m_sdk.CloseSession();
+            if (SDK.IsLiveViewOn)
+                SDK.StopLiveView();
+            SDK.CloseSession();
         }
+
+        #endregion
 
         #region event handlers
 
-        private static void HandleCameraHasShutdown(object sender, EventArgs e)
-        {
-            CloseSession();
-        }
+        /// <summary>
+        /// When a camera shuts down
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void HandleCameraHasShutdown(object sender, EventArgs e) => CloseSession();
 
         /// <summary>
         /// When a camera is added 
         /// </summary>
-        private static void HandleCameraAdded()
-        {
-            OpenSession();
-        }
+        private static void HandleCameraAdded() => OpenSession();
 
         private static void HandleLiveViewUpdated(Stream stream)
         {
-            Bitmap bitmap = null;
             try
             {
-                bitmap = new Bitmap(stream);
-
-                if (!IsStarted && (Width == 0 || Height == 0 || BitDepth == 0))
+                using (Bitmap bitmap = new Bitmap(stream))
                 {
-                    Width = bitmap.Width;
-                    Height = bitmap.Height;
-                    BitDepth = Image.GetPixelFormatSize(bitmap.PixelFormat);
+                    m_stats.UpdateStats(bitmap);
+
+                    if (IsStarted)
+                        FrameReceived?.Invoke(null, (Bitmap)Image.FromStream(stream));
                 }
-
-                m_stats.UpdateStats(bitmap);
-
-                if (IsStarted)
-                    FrameReceived?.Invoke(null, (Bitmap)Image.FromStream(stream));
             }
             catch (Exception ex)
             {
                 Trace.TraceError("Error\r\n{0}", ex);
             }
-            finally
-            {
-                if (!IsStarted && bitmap != null)
-                    bitmap.Dispose();
-            }
         }
 
         #endregion
 
-        /// <summary>
-        /// When a frame is recieved
-        /// </summary>
-        public static event EventHandler<Bitmap> FrameReceived;
-
-        static readonly SDKHandler m_sdk;
-
-        static readonly CameraStats m_stats = new CameraStats();
-
-        public static SDKHandler SDK => m_sdk;
     }
 }

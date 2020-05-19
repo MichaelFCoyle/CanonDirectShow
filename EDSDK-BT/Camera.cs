@@ -13,29 +13,31 @@ namespace EDSDK_NET
         /// Pointer to SDK camera object
         /// </summary>
         public IntPtr Ref { get; private set; }
+
         /// <summary>
         /// Information about this camera
         /// </summary>
         public EdsDeviceInfo Info { get; private set; }
+        
         /// <summary>
         /// Handles errors that happen with the SDK
         /// </summary>
         public uint Error
         {
-            get { return EDS_ERR_OK; }
+            get =>EDS_ERR_OK; 
             set { if (value != EDS_ERR_OK) throw new Exception("SDK Error: " + value); }
         }
 
         /// <summary>
         /// Creates a new instance of the Camera class
         /// </summary>
-        /// <param name="Reference">Pointer to the SDK camera object</param>
-        public Camera(IntPtr Reference)
+        /// <param name="reference">Pointer to the SDK camera object</param>
+        public Camera(IntPtr reference)
         {
-            if (Reference == IntPtr.Zero) throw new ArgumentNullException("Camera pointer is zero");
-            this.Ref = Reference;
-            Error = EdsGetDeviceInfo(Reference, out EdsDeviceInfo dinfo);
-            this.Info = dinfo;
+            if (reference == IntPtr.Zero) throw new ArgumentNullException("Camera pointer is zero");
+            Ref = reference;
+            Error = EdsGetDeviceInfo(reference, out EdsDeviceInfo dinfo);
+            Info = dinfo;
         }
     }
 }

@@ -11,14 +11,17 @@ namespace EDSDK_NET
         /// Name of this entry
         /// </summary>
         public string Name { get; private set; }
+
         /// <summary>
         /// States if this entry is a folder or not
         /// </summary>
         public bool IsFolder { get; private set; }
+        
         /// <summary>
         /// Thumbnail of this entry (might be null if not available)
         /// </summary>
         public Bitmap Thumbnail { get; private set; }
+        
         /// <summary>
         /// Subentries of this entry (i.e. subfolders)
         /// </summary>
@@ -29,28 +32,22 @@ namespace EDSDK_NET
         /// </summary>
         /// <param name="Name">Name of this entry</param>
         /// <param name="IsFolder">True if this entry is a folder, false otherwise</param>
-        public CameraFileEntry(string Name, bool IsFolder)
+        public CameraFileEntry(string name, bool isFolder)
         {
-            this.Name = Name;
-            this.IsFolder = IsFolder;
+            Name = name;
+            IsFolder = isFolder;
         }
 
         /// <summary>
         /// Adds subentries (subfolders) to this entry
         /// </summary>
         /// <param name="Entries">the entries to add</param>
-        public void AddSubEntries(CameraFileEntry[] Entries)
-        {
-            this.Entries = Entries;
-        }
+        public void AddSubEntries(CameraFileEntry[] entries)=>Entries = entries;
 
         /// <summary>
         /// Adds a thumbnail to this entry
         /// </summary>
         /// <param name="Thumbnail">The thumbnail to add</param>
-        public void AddThumb(Bitmap Thumbnail)
-        {
-            this.Thumbnail = Thumbnail;
-        }
+        public void AddThumb(Bitmap thumbnail)=>Thumbnail = thumbnail;
     }
 }
