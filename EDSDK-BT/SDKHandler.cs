@@ -62,13 +62,11 @@ namespace EDSDK_NET
         /// </summary>
         public uint Error
         {
-            get { return EDS_ERR_OK; }
+            get => EDS_ERR_OK; 
             set
             {
                 if (value != EDS_ERR_OK)
-                {
                     throw new Exception("SDK Error: 0x" + value.ToString("X"));
-                }
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CanonCaptureFilter;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -23,6 +24,8 @@ namespace DxCapture
                 Trace.TraceError("Error registering assembly: {0}", s_assembly);
                 return;
             }
+
+            Controller.Initialize();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

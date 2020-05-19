@@ -11,9 +11,10 @@ namespace CanonCaptureFilter
     [PropPageSetup(typeof(CanonAboutForm))]
     public class CanonCameraFilter2 : BaseSourceFilter, IAMFilterMiscFlags
     {
-        public CanonCameraFilter2() : base("Canon Camera Capture") { }
+        public CanonCameraFilter2() : base("Canon Camera Capture") => 
+            AddPin(new CanonSourceStream("Capture", this));
 
-        protected override int OnInitializePins() => AddPin(new CanonSourceStream("Capture", this));
+        protected override int OnInitializePins() => NOERROR;
 
         /// <summary>
         /// A filter is considered to be a live source if either of the following are true:
@@ -22,6 +23,23 @@ namespace CanonCaptureFilter
         /// </summary>
         /// <returns></returns>
         public int GetMiscFlags() => (int)AMFilterMiscFlags.IsSource;
+
+        public override int Pause()
+        {
+            return base.Pause();
+        }
+
+        public override int Stop()
+        {
+            Controller.Stop();
+            return base.Stop();
+        }
+
+        public override int Run(long tStart)
+        {
+            Controller.Start();
+            return base.Run(tStart);
+        }
     }
 
 }

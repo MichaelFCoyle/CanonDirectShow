@@ -10,6 +10,7 @@ using System.Threading;
 using System.ComponentModel;
 using System.Reflection;
 using System.IO;
+using System.Linq;
 
 namespace Sonic
 {
@@ -45,11 +46,11 @@ namespace Sonic
 #if DEBUG
         public static void _TRACE(string _message) { if (!string.IsNullOrEmpty(_message)) Trace.WriteLine(_message); }
         public static void TRACE(string _message) { if (!string.IsNullOrEmpty(_message)) { _message += "\n"; API.OutputDebugString(_message); } }
-        
-        public static void TRACE_ENTER() 
-        { 
-            MethodBase _method = (new StackTrace(1,false)).GetFrame(0).GetMethod();
-            TRACE(string.Format("{0}::{1}", _method.ReflectedType.Name, _method.Name)); 
+
+        public static void TRACE_ENTER()
+        {
+            MethodBase _method = (new StackTrace(1, false)).GetFrame(0).GetMethod();
+            TRACE(string.Format("{0}::{1}", _method.ReflectedType.Name, _method.Name));
         }
         public static void ASSERT(object _object) { if (_object is BOOL) Debug.Assert((bool)_object); if (_object is HRESULT) Debug.Assert((bool)_object); else if (_object is bool) Debug.Assert((bool)_object); else Debug.Assert(_object != null); }
 #else
@@ -80,26 +81,26 @@ namespace Sonic
         public const int SUBLANG_CUSTOM_UNSPECIFIED = 0x04;
         public const int SUBLANG_UI_CUSTOM_DEFAULT = 0x05;
 
-        public const int SORT_DEFAULT         = 0x0;
-        public const int SORT_INVARIANT_MATH  = 0x1;
+        public const int SORT_DEFAULT = 0x0;
+        public const int SORT_INVARIANT_MATH = 0x1;
 
-        public static int LANG_SYSTEM_DEFAULT { get { return (MAKELANGID(LANG_NEUTRAL, SUBLANG_SYS_DEFAULT)); }}
-        public static int LANG_USER_DEFAULT { get { return (MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)); }}
+        public static int LANG_SYSTEM_DEFAULT { get { return (MAKELANGID(LANG_NEUTRAL, SUBLANG_SYS_DEFAULT)); } }
+        public static int LANG_USER_DEFAULT { get { return (MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)); } }
 
-        public static int LOCALE_SYSTEM_DEFAULT { get { return (MAKELCID(LANG_SYSTEM_DEFAULT, SORT_DEFAULT)); }}
-        public static int LOCALE_USER_DEFAULT { get { return (MAKELCID(LANG_USER_DEFAULT, SORT_DEFAULT)); }}
-        public static int LOCALE_CUSTOM_DEFAULT { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_CUSTOM_DEFAULT), SORT_DEFAULT)); }}
-        public static int LOCALE_CUSTOM_UNSPECIFIED { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_CUSTOM_UNSPECIFIED), SORT_DEFAULT)); }}
-        public static int LOCALE_CUSTOM_UI_DEFAULT { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_UI_CUSTOM_DEFAULT), SORT_DEFAULT)); }}
-        public static int LOCALE_NEUTRAL { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), SORT_DEFAULT)); }}
+        public static int LOCALE_SYSTEM_DEFAULT { get { return (MAKELCID(LANG_SYSTEM_DEFAULT, SORT_DEFAULT)); } }
+        public static int LOCALE_USER_DEFAULT { get { return (MAKELCID(LANG_USER_DEFAULT, SORT_DEFAULT)); } }
+        public static int LOCALE_CUSTOM_DEFAULT { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_CUSTOM_DEFAULT), SORT_DEFAULT)); } }
+        public static int LOCALE_CUSTOM_UNSPECIFIED { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_CUSTOM_UNSPECIFIED), SORT_DEFAULT)); } }
+        public static int LOCALE_CUSTOM_UI_DEFAULT { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_UI_CUSTOM_DEFAULT), SORT_DEFAULT)); } }
+        public static int LOCALE_NEUTRAL { get { return (MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL), SORT_DEFAULT)); } }
         public static int LOCALE_INVARIANT { get { return (MAKELCID(MAKELANGID(LANG_INVARIANT, SUBLANG_NEUTRAL), SORT_DEFAULT)); } }
 
         public static int MAKELANGID(int p, int s) { return ((((ushort)(s)) << 10) | (ushort)(p)); }
         public static int PRIMARYLANGID(int lgid) { return ((ushort)(lgid) & 0x3ff); }
-        public static int SUBLANGID(int lgid) { return ((ushort )(lgid) >> 10); } 
-        public static int MAKELCID(int lgid,int srtid)  { return ((int)((((int)((ushort )(srtid))) << 16) | ((int)((ushort)(lgid))))); } 
-        public static int MAKESORTLCID(int lgid,int  srtid,int  ver) { return ((int)((MAKELCID(lgid, srtid)) | (((int)((ushort)(ver))) << 20))); }
-        public static int LANGIDFROMLCID(int lcid) { return ((ushort  )(lcid)); } 
+        public static int SUBLANGID(int lgid) { return ((ushort)(lgid) >> 10); }
+        public static int MAKELCID(int lgid, int srtid) { return ((int)((((int)((ushort)(srtid))) << 16) | ((int)((ushort)(lgid))))); }
+        public static int MAKESORTLCID(int lgid, int srtid, int ver) { return ((int)((MAKELCID(lgid, srtid)) | (((int)((ushort)(ver))) << 20))); }
+        public static int LANGIDFROMLCID(int lcid) { return ((ushort)(lcid)); }
         public static int SORTIDFROMLCID(int lcid) { return ((ushort)((((int)(lcid)) >> 16) & 0xf)); }
         public static int SORTVERSIONFROMLCID(int lcid) { return ((ushort)((((int)(lcid)) >> 20) & 0xf)); }
 
@@ -122,9 +123,9 @@ namespace Sonic
 
         #region HRESULT
 
-        public static HRESULT S_OK  { get { return (HRESULT)0; } }
+        public static HRESULT S_OK { get { return (HRESULT)0; } }
         public static HRESULT S_FALSE { get { return (HRESULT)1; } }
-        public static HRESULT NOERROR { get { return S_OK; } } 
+        public static HRESULT NOERROR { get { return S_OK; } }
         public static HRESULT E_INVALIDARG { get { unchecked { return (HRESULT)0x80070057; } } }
         public static HRESULT E_NOINTERFACE { get { unchecked { return (HRESULT)0x80004002; } } }
         public static HRESULT E_NOTIMPL { get { unchecked { return (HRESULT)0x80004001; } } }
@@ -202,7 +203,7 @@ namespace Sonic
 
             [DllImport("kernel32.dll", EntryPoint = "RtlMoveMemory")]
             public static extern void CopyMemory(IntPtr Destination, IntPtr Source, [MarshalAs(UnmanagedType.U4)] int Length);
-            
+
             [DllImport("ole32.dll")]
             public static extern int CreateBindCtx(int reserved, out IBindCtx ppbc);
 
@@ -216,8 +217,8 @@ namespace Sonic
                 int y,
                 [MarshalAs(UnmanagedType.LPWStr)] string lpszCaption,
                 int cObjects,
-                [MarshalAs(UnmanagedType.Interface, ArraySubType = UnmanagedType.IUnknown)] 
-			    ref object ppUnk,
+                [MarshalAs(UnmanagedType.Interface, ArraySubType = UnmanagedType.IUnknown)]
+                ref object ppUnk,
                 int cPages,
                 IntPtr lpPageClsID,
                 int lcid,
@@ -239,7 +240,7 @@ namespace Sonic
     }
 
     [ComVisible(false)]
-    public sealed class BOOL : COMHelper,IComparable,ICloneable
+    public sealed class BOOL : COMHelper, IComparable, ICloneable
     {
         #region Variables
 
@@ -409,98 +410,59 @@ namespace Sonic
     }
 
     [ComVisible(false)]
-    public class HRESULT : COMHelper,IComparable,ICloneable
+    public class HRESULT : COMHelper, IComparable, ICloneable
     {
         #region Variables
 
-        private int m_Result = 0;
+        private readonly int m_Result = 0;
 
         #endregion
 
         #region Constructor
 
-        public HRESULT()
-        {
-        }
+        public HRESULT() { }
 
-        public HRESULT(int hr)
-        {
-            m_Result = hr;
-        }
+        public HRESULT(int hr) => m_Result = hr;
 
-        public HRESULT(HRESULT hr)
-            : this(hr.m_Result)
-        {
-        }
+        public HRESULT(HRESULT hr) : this(hr.m_Result) { }
 
         #endregion
 
         #region Properties
 
-        public bool Failed
-        {
-            get { return FAILED(m_Result); }
-        }
+        public bool Failed => FAILED(m_Result);
 
-        public bool Succeeded
-        {
-            get { return SUCCEEDED(m_Result); }
-        }
+        public bool Succeeded => SUCCEEDED(m_Result);
 
-        public string Text
-        {
-            get { return GetErrorText(); }
-        }
+        public string Text => GetErrorText();
 
         #endregion
 
         #region IComparable Members
 
-        public int CompareTo(object obj)
-        {
-            if (obj is HRESULT)
-            {
-                return m_Result.CompareTo(((HRESULT)obj).m_Result);
-            }
-            return m_Result.CompareTo(obj);
-        }
+        public int CompareTo(object obj) => obj is HRESULT ? m_Result.CompareTo(((HRESULT)obj).m_Result) : m_Result.CompareTo(obj);
 
         #endregion
 
         #region ICloneable Members
 
-        public object Clone()
-        {
-            return new HRESULT(m_Result);
-        }
+        public object Clone() => new HRESULT(m_Result);
 
         #endregion
 
         #region Overridden Methods
 
-        public override bool Equals(object obj)
-        {
-            if (obj is HRESULT)
-            {
-                return m_Result.Equals(((HRESULT)obj).m_Result);
-            }
-            return m_Result.Equals(obj);
-        }
+        public override bool Equals(object obj) => obj is HRESULT ? m_Result.Equals(((HRESULT)obj).m_Result) : m_Result.Equals(obj);
 
-        public override int GetHashCode()
-        {
-            return m_Result.GetHashCode();
-        }
+        public override int GetHashCode() => m_Result.GetHashCode();
 
         public override string ToString()
         {
-            string _text = GetErrorText();
-            if (_text != "")
-            {
-                _text = " ( " + _text + " )";
-            }
-            _text = "0x" + m_Result.ToString("x8") + _text;
-            return _text;
+            string text = GetErrorText();
+            if (text != "")
+                text = " ( " + text + " )";
+            text = "0x" + m_Result.ToString("x8") + text;
+            return text;
         }
 
         #endregion
@@ -509,38 +471,31 @@ namespace Sonic
 
         protected virtual string GetErrorText()
         {
-            string _text = "";
-            uint _length = 160;
-            IntPtr _ptr = Marshal.AllocCoTaskMem((int)_length);
+            string text = "";
+            uint length = 160;
+            IntPtr ptr = Marshal.AllocCoTaskMem((int)length);
             try
             {
-                if (AMGetErrorText(m_Result, _ptr, _length) > 0)
-                {
-                    _text = Marshal.PtrToStringAuto(_ptr);
-                }
+                if (AMGetErrorText(m_Result, ptr, length) > 0)
+                    text = Marshal.PtrToStringAuto(ptr);
             }
             catch
             {
             }
-            Marshal.FreeCoTaskMem(_ptr);
-            return _text;
+            Marshal.FreeCoTaskMem(ptr);
+            return text;
         }
 
         #endregion
 
         #region Methods
 
-        public void Assert()
-        {
-            ASSERT(SUCCEEDED(m_Result));
-        }
+        public void Assert() => ASSERT(SUCCEEDED(m_Result));
 
         public void Throw()
         {
             if (FAILED(m_Result))
-            {
                 Marshal.ThrowExceptionForHR(m_Result);
-            }
         }
 
         public void TraceWrite()
@@ -551,13 +506,13 @@ namespace Sonic
                 MethodBase _method = _frame.GetMethod();
                 string _file = _frame.GetFileName();
                 _file = !string.IsNullOrEmpty(_file) ? Path.GetFileName(_file) : "";
-                TRACE(string.Format("-- ASSERT -- Method {0}::{1}, HRESULT : {2},File : {3} Line : {4} ", 
-                    _method.ReflectedType.Name, 
+                TRACE(string.Format("-- ASSERT -- Method {0}::{1}, HRESULT : {2},File : {3} Line : {4} ",
+                    _method.ReflectedType.Name,
                     _method.Name,
                     ToString(),
                     _file,
                     _frame.GetFileLineNumber()
-                    )); 
+                    ));
             }
         }
 
@@ -566,7 +521,7 @@ namespace Sonic
         #region Imports
 
         [DllImport("quartz.dll", EntryPoint = "AMGetErrorText", CharSet = CharSet.Auto)]
-        private static extern uint AMGetErrorText(int hr,IntPtr sText,[In] uint _length);
+        private static extern uint AMGetErrorText(int hr, IntPtr sText, [In] uint _length);
 
         #endregion
 
@@ -574,40 +529,21 @@ namespace Sonic
 
         public static bool operator ==(HRESULT _src, HRESULT _dest)
         {
-            if (System.Object.ReferenceEquals(_src, _dest))
-            {
-                return true;
-            }
+            if (Object.ReferenceEquals(_src, _dest)) return true;
             if ((_src as Object) == (_dest as Object)) return true;
 
             if ((_src as Object) != null && (_dest as Object) != null)
-            {
                 return _src.m_Result == _dest.m_Result;
-            }
             return false;
         }
 
-        public static bool operator !=(HRESULT _src, HRESULT _dest)
-        {
-            return !(_src == _dest);
-        }
+        public static bool operator !=(HRESULT _src, HRESULT _dest) => !(_src == _dest);
 
-        public static implicit operator bool(HRESULT hr)
-        {
-            if ((hr as Object) == null) return true;
-            return (SUCCEEDED(hr.m_Result));
-        }
+        public static implicit operator bool(HRESULT hr) => (hr as object) == null ? true : SUCCEEDED(hr.m_Result);
 
-        public static implicit operator int(HRESULT hr)
-        {
-            if ((hr as Object) == null) return 0;
-            return hr.m_Result;
-        }
+        public static implicit operator int(HRESULT hr) => (hr as object) == null ? 0 : hr.m_Result;
 
-        public static explicit operator HRESULT(int hr)
-        {
-            return new HRESULT(hr);
-        }
+        public static explicit operator HRESULT(int hr) => new HRESULT(hr);
 
         public static explicit operator HRESULT(uint hr)
         {
@@ -633,7 +569,7 @@ namespace Sonic
 
         #region Variables
 
-        private uint m_uiFourcc = 0;
+        private readonly uint m_uiFourcc = 0;
 
         #endregion
 
@@ -647,51 +583,40 @@ namespace Sonic
             }
         }
 
-        public FOURCC(uint _value)
-		{
-            m_uiFourcc = _value;
-		}
+        public FOURCC(uint _value) => m_uiFourcc = _value;
 
-		public FOURCC(Guid _guid)
-		{
+        public FOURCC(Guid _guid)
+        {
             byte[] _data = _guid.ToByteArray();
             byte[] _result = { _data[0], _data[1], _data[2], _data[3] };
             m_uiFourcc = BitConverter.ToUInt32(_result, 0);
-		}
+        }
 
-		public FOURCC(string _value)
-		{
+        public FOURCC(string _value)
+        {
             byte[] _data = new byte[4];
             for (int i = 0; i < _data.Length; i++)
             {
                 if (i < _value.Length)
-                {
                     _data[i] = (byte)_value[i];
-                }
                 else
-                {
                     _data[i] = 0;
-                }
             }
             m_uiFourcc = BitConverter.ToUInt32(_data, 0);
-		}
+        }
 
         public FOURCC(byte[] _value)
-		{
+        {
             byte[] _data = new byte[4];
             for (int i = 0; i < _data.Length; i++)
             {
                 if (i < _value.Length)
-                {
                     _data[i] = _value[i];
-                }
                 else
-                {
                     _data[i] = 0;
-                }
             }
-            m_uiFourcc = BitConverter.ToUInt32(_data,0);
-		}
+            m_uiFourcc = BitConverter.ToUInt32(_data, 0);
+        }
 
         public FOURCC(char[] _value)
         {
@@ -699,13 +624,9 @@ namespace Sonic
             for (int i = 0; i < _data.Length; i++)
             {
                 if (i < _value.Length)
-                {
                     _data[i] = (byte)_value[i];
-                }
                 else
-                {
                     _data[i] = 0;
-                }
             }
             m_uiFourcc = BitConverter.ToUInt32(_data, 0);
         }
@@ -716,9 +637,9 @@ namespace Sonic
             m_uiFourcc = BitConverter.ToUInt32(_data, 0);
         }
 
-        public FOURCC(byte a1,byte a2,byte a3,byte a4)
+        public FOURCC(byte a1, byte a2, byte a3, byte a4)
         {
-            byte[] _data = new byte[] { a1,a2,a3,a4 };
+            byte[] _data = new byte[] { a1, a2, a3, a4 };
             m_uiFourcc = BitConverter.ToUInt32(_data, 0);
         }
 
@@ -726,19 +647,9 @@ namespace Sonic
 
         #region Overridden Methods
 
-        public override bool Equals(object obj)
-        {
-            if (obj is FOURCC)
-            {
-                return m_uiFourcc.Equals(((FOURCC)obj).m_uiFourcc);
-            }
-            return m_uiFourcc.Equals(obj);
-        }
+        public override bool Equals(object obj) => obj is FOURCC ? m_uiFourcc.Equals(((FOURCC)obj).m_uiFourcc) : m_uiFourcc.Equals(obj);
 
-        public override int GetHashCode()
-        {
-            return m_uiFourcc.GetHashCode();
-        }
+        public override int GetHashCode() => m_uiFourcc.GetHashCode();
 
         public override string ToString()
         {
@@ -757,9 +668,7 @@ namespace Sonic
                 }
             }
             if (_result != "")
-            {
                 _result += " )";
-            }
             return m_uiFourcc.ToString("x4") + _result;
         }
 
@@ -767,23 +676,13 @@ namespace Sonic
 
         #region IComparable Members
 
-        public int CompareTo(object obj)
-        {
-            if (obj is FOURCC)
-            {
-                return m_uiFourcc.CompareTo(((FOURCC)obj).m_uiFourcc);
-            }
-            return m_uiFourcc.CompareTo(obj);
-        }
+        public int CompareTo(object obj) => obj is FOURCC ? m_uiFourcc.CompareTo(((FOURCC)obj).m_uiFourcc) : m_uiFourcc.CompareTo(obj);
 
         #endregion
 
         #region ICloneable Members
 
-        public object Clone()
-        {
-            return new FOURCC(m_uiFourcc);
-        }
+        public object Clone() => new FOURCC(m_uiFourcc);
 
         #endregion
 
@@ -791,61 +690,36 @@ namespace Sonic
 
         public static bool operator ==(FOURCC _src, FOURCC _dest)
         {
-            if (System.Object.ReferenceEquals(_src, _dest))
-            {
-                return true;
-            }
+            if (System.Object.ReferenceEquals(_src, _dest)) return true;
             if ((_src as Object) == (_dest as Object)) return true;
 
             if ((_src as Object) != null && (_dest as Object) != null)
-            {
                 return _src.m_uiFourcc == _dest.m_uiFourcc;
-            }
             return false;
         }
 
-        public static bool operator !=(FOURCC _src, FOURCC _dest)
-        {
-            return !(_src == _dest);
-        }
+        public static bool operator !=(FOURCC src, FOURCC dest) => !(src == dest);
 
-        public static explicit operator FOURCC(int _value)
-        {
-            return new FOURCC(_value);
-        }
+        public static explicit operator FOURCC(int value) => new FOURCC(value);
 
-        public static explicit operator FOURCC(uint _value)
-        {
-            return new FOURCC(_value);
-        }
+        public static explicit operator FOURCC(uint value) => new FOURCC(value);
 
-        public static explicit operator FOURCC(Guid _value)
-        {
-            return new FOURCC(_value);
-        }
+        public static explicit operator FOURCC(Guid value) => new FOURCC(value);
 
-        public static explicit operator FOURCC(string _value)
-        {
-            if (_value == null) return new FOURCC(0);
-            return new FOURCC(_value);
-        }
+        public static explicit operator FOURCC(string value) => value == null ? new FOURCC(0) : new FOURCC(value);
 
-        public static explicit operator FOURCC(Array _value)
+        public static explicit operator FOURCC(Array value)
         {
-            if (_value == null) return new FOURCC(0);
-            byte[] _data = new byte[4];
-            for (int i = 0; i < _data.Length; i++)
+            if (value == null) return new FOURCC(0);
+            byte[] data = new byte[4];
+            for (int i = 0; i < data.Length; i++)
             {
-                if (i < _value.Length)
-                {
-                    _data[i] = (byte)Convert.ToByte(_value.GetValue(i));
-                }
+                if (i < value.Length)
+                    data[i] = (byte)Convert.ToByte(value.GetValue(i));
                 else
-                {
-                    _data[i] = 0;
-                }
+                    data[i] = 0;
             }
-            return new FOURCC(_data);
+            return new FOURCC(data);
         }
 
         public static implicit operator int(FOURCC _fcc)
@@ -857,11 +731,7 @@ namespace Sonic
             }
         }
 
-        public static implicit operator uint(FOURCC _fcc)
-        {
-            if ((_fcc as Object) == null) return 0;
-            return _fcc.m_uiFourcc;
-        }
+        public static implicit operator uint(FOURCC _fcc) => (_fcc as Object) == null ? 0 : _fcc.m_uiFourcc;
 
         public static implicit operator byte[](FOURCC _fcc)
         {
@@ -869,9 +739,7 @@ namespace Sonic
             byte[] _data = BitConverter.GetBytes(_fcc.m_uiFourcc);
             byte[] _result = new byte[_data.Length];
             for (int i = 0; i < _data.Length; i++)
-            {
                 _result[3 - i] = _data[i];
-            }
             return _result;
         }
 
@@ -881,9 +749,7 @@ namespace Sonic
             byte[] _data = BitConverter.GetBytes(_fcc.m_uiFourcc);
             char[] _result = new char[_data.Length];
             for (int i = 0; i < _data.Length; i++)
-            {
                 _result[3 - i] = (char)_data[i];
-            }
             return _result;
         }
 
@@ -893,9 +759,7 @@ namespace Sonic
             byte[] _data = BitConverter.GetBytes(_fcc.m_uiFourcc);
             string _result = "";
             for (int i = 0; i < _data.Length; i++)
-            {
                 _result += (char)_data[i];
-            }
             return _result;
         }
 
@@ -915,11 +779,7 @@ namespace Sonic
     {
         #region Delegates
 
-        private delegate int QueryInterfaceProc(
-            IntPtr pUnk,
-            ref Guid riid,
-            out IntPtr ppvObject
-            );
+        private delegate int QueryInterfaceProc(IntPtr pUnk, ref Guid riid, out IntPtr ppvObject);
 
         private delegate uint AddRefProc(IntPtr pUnk);
 
@@ -934,47 +794,26 @@ namespace Sonic
 
         #region Properties
 
-        public IntPtr UnknownPtr
-        {
-            get { return m_pUnknown; }
-        }
+        public IntPtr UnknownPtr => m_pUnknown;
 
-        public bool IsValid
-        {
-            get { return m_pUnknown != IntPtr.Zero; }
-        }
+        public bool IsValid => m_pUnknown != IntPtr.Zero;
 
         #endregion
 
         #region Constructor
 
-        protected VTableInterface()
-            : this(IntPtr.Zero, false)
-        {
+        protected VTableInterface() : this(IntPtr.Zero, false) { }
 
-        }
+        protected VTableInterface(IntPtr pUnknown, Type _type) : this(pUnknown, _type.GUID) { }
 
-        protected VTableInterface(IntPtr pUnknown, Type _type)
-            : this(pUnknown, _type.GUID)
-        {
-
-        }
-
-        protected VTableInterface(IntPtr pUnknown, Guid _guid)
-            : this(IntPtr.Zero, false)
+        protected VTableInterface(IntPtr pUnknown, Guid _guid) : this(IntPtr.Zero, false)
         {
             HRESULT hr = (HRESULT)Marshal.QueryInterface(pUnknown, ref _guid, out m_pUnknown);
             if (hr.Succeeded)
-            {
                 Marshal.Release(pUnknown);
-            }
         }
 
-        protected VTableInterface(IntPtr pUnknown)
-            : this(pUnknown, false)
-        {
-
-        }
+        protected VTableInterface(IntPtr pUnknown) : this(pUnknown, false) { }
 
         protected VTableInterface(IntPtr pUnknown, bool bAddRef)
         {
@@ -989,30 +828,20 @@ namespace Sonic
             }
         }
 
-        protected VTableInterface(object _object, Guid _guid)
-            : this(IntPtr.Zero, false)
+        protected VTableInterface(object _object, Guid _guid) : this(IntPtr.Zero, false)
         {
             if (_object != null)
             {
                 IntPtr pUnknown = Marshal.GetIUnknownForObject(_object);
                 HRESULT hr = (HRESULT)Marshal.QueryInterface(pUnknown, ref _guid, out m_pUnknown);
                 if (hr.Succeeded)
-                {
                     Marshal.Release(pUnknown);
-                }
             }
         }
 
-        protected VTableInterface(object _object, Type _type)
-            : this(_object, _type.GUID)
-        {
-            
-        }
+        protected VTableInterface(object _object, Type _type) : this(_object, _type.GUID) { }
 
-        ~VTableInterface()
-        {
-            Dispose();
-        }
+        ~VTableInterface() { Dispose(); }
 
         #endregion
 
@@ -1028,11 +857,7 @@ namespace Sonic
 
             if (_Proc == null) return E_UNEXPECTED;
 
-            return (HRESULT)_Proc(
-                        m_pUnknown,
-                        ref riid,
-                        out ppvObject
-                        );
+            return (HRESULT)_Proc(m_pUnknown, ref riid, out ppvObject);
         }
 
         public uint _AddRef()
@@ -1040,9 +865,8 @@ namespace Sonic
             if (m_pUnknown == IntPtr.Zero) return 0;
 
             AddRefProc _Proc = GetProcDelegate<AddRefProc>(1);
-            
-            if (_Proc == null) return 0;
-            return _Proc(m_pUnknown);
+
+            return _Proc == null ? 0 : _Proc(m_pUnknown);
         }
 
         public uint _Release()
@@ -1050,15 +874,13 @@ namespace Sonic
             if (m_pUnknown == IntPtr.Zero) return 0;
 
             AddRefProc _Proc = GetProcDelegate<AddRefProc>(2);
-            if (_Proc == null) return 0;
-            return _Proc(m_pUnknown);
+            return _Proc == null ? 0 : _Proc(m_pUnknown);
         }
 
         public T _GetObject<T>() where T : class
         {
             Guid _guid = typeof(T).GUID;
-            IntPtr _ptr;
-            if (SUCCEEDED(_QueryInterface(ref _guid, out _ptr)))
+            if (SUCCEEDED(_QueryInterface(ref _guid, out IntPtr _ptr)))
             {
                 _Release();
                 return (T)Marshal.GetObjectForIUnknown(_ptr);
@@ -1072,24 +894,17 @@ namespace Sonic
 
         public HRESULT IsInterface(Guid _guid)
         {
-            IntPtr pvObject;
-            HRESULT hr = _QueryInterface(ref _guid, out pvObject);
+            HRESULT hr = _QueryInterface(ref _guid, out IntPtr pvObject);
             if (hr.Succeeded)
-            {
                 _Release();
-            }
             return hr;
         }
 
-        public HRESULT IsInterface(Type _type)
-        {
-            return IsInterface(_type.GUID);
-        }
+        public HRESULT IsInterface(Type _type) => IsInterface(_type.GUID);
 
         public T GetInterfaceImpl<T>(Guid _guid) where T : VTableInterface, new()
         {
-            IntPtr pUnknown;
-            if (SUCCEEDED(_QueryInterface(ref _guid,out pUnknown)))
+            if (SUCCEEDED(_QueryInterface(ref _guid, out IntPtr pUnknown)))
             {
                 T pT = new T();
                 VTableInterface _interface = (VTableInterface)pT;
@@ -1099,10 +914,7 @@ namespace Sonic
             return null;
         }
 
-        public T GetInterfaceImpl<T>(Type _type) where T : VTableInterface, new()
-        {
-            return GetInterfaceImpl<T>(_type.GUID);
-        }
+        public T GetInterfaceImpl<T>(Type _type) where T : VTableInterface, new() => GetInterfaceImpl<T>(_type.GUID);
 
         public T GetInterfaceImpl<T>() where T : VTableInterface, new()
         {
@@ -1163,20 +975,13 @@ namespace Sonic
     {
         #region Constructor
 
-        public IUnknownImpl(IntPtr pUnknown)
-            : base(pUnknown,false)
-        {
-
-        }
+        public IUnknownImpl(IntPtr pUnknown) : base(pUnknown, false) { }
 
         #endregion
 
         #region Methods
 
-        public new T GetProcDelegate<T>(int nIndex) where T : class
-        {
-            return base.GetProcDelegate<T>(nIndex);
-        }
+        public new T GetProcDelegate<T>(int nIndex) where T : class => base.GetProcDelegate<T>(nIndex);
 
         #endregion
 
@@ -1200,37 +1005,17 @@ namespace Sonic
 
         #region Properties
 
-        public T Value
-        {
-            get { return m_pUnknown; }
-            set { m_pUnknown = value; }
-        }
+        public T Value { get => m_pUnknown; set => m_pUnknown = value; }
 
-        public bool IsReleased
-        {
-            get { return m_pUnknown == null; }
-        }
+        public bool IsReleased => m_pUnknown == null;
 
-        public bool IsValid
-        {
-            get { return !IsReleased; }
-        }
+        public bool IsValid => !IsReleased;
 
-        public bool ReleaseOnDestroy
-        {
-            get { return m_bReleaseOnDestroy; }
-            set { m_bReleaseOnDestroy = value; }
-        }
+        public bool ReleaseOnDestroy { get => m_bReleaseOnDestroy; set => m_bReleaseOnDestroy = value; }
 
-        public Guid GUID
-        {
-            get { return typeof(T).GUID; }
-        }
+        public Guid GUID => typeof(T).GUID;
 
-        public object this[Type _type]
-        {
-            get { return QueryInterface(_type); }
-        }
+        public object this[Type _type] => QueryInterface(_type);
 
         #endregion
 
@@ -1241,13 +1026,7 @@ namespace Sonic
             Guid _guid = this.GetType().GUID;
             if (_guid != Guid.Empty)
             {
-                IntPtr _ptr;
-                HRESULT hr = (HRESULT)API.CoCreateInstance(
-                    _guid,
-                    IntPtr.Zero,
-                    CLSCTX.CLSCTX_INPROC_SERVER,
-                    typeof(T).GUID,
-                    out _ptr);
+                HRESULT hr = (HRESULT)API.CoCreateInstance( _guid, IntPtr.Zero, CLSCTX.CLSCTX_INPROC_SERVER, typeof(T).GUID, out IntPtr _ptr);
                 if (hr.Succeeded)
                 {
                     m_pUnknown = Marshal.GetObjectForIUnknown(_ptr) as T;
@@ -1260,13 +1039,7 @@ namespace Sonic
         {
             if (_guid != Guid.Empty)
             {
-                IntPtr _ptr;
-                HRESULT hr = (HRESULT)API.CoCreateInstance(
-                    _guid,
-                    IntPtr.Zero,
-                    CLSCTX.CLSCTX_INPROC_SERVER,
-                    typeof(T).GUID,
-                    out _ptr);
+                HRESULT hr = (HRESULT)API.CoCreateInstance(_guid, IntPtr.Zero, CLSCTX.CLSCTX_INPROC_SERVER, typeof(T).GUID, out IntPtr _ptr);
                 if (hr.Succeeded)
                 {
                     m_pUnknown = Marshal.GetObjectForIUnknown(_ptr) as T;
@@ -1296,10 +1069,7 @@ namespace Sonic
             m_bReleaseOnDestroy = bReleaseOnDestroy;
         }
 
-        ~DSObject()
-        {
-            Dispose();
-        }
+        ~DSObject() { Dispose(); }
 
         #endregion
 
@@ -1308,13 +1078,9 @@ namespace Sonic
         public override bool Equals(object obj)
         {
             if (obj == m_pUnknown)
-            {
                 return true;
-            }
             if (obj is DSObject<T>)
-            {
                 return (obj as DSObject<T>).m_pUnknown == m_pUnknown;
-            }
             return base.Equals(obj);
         }
 
@@ -1333,9 +1099,7 @@ namespace Sonic
             if (m_bReleaseOnDestroy && m_pUnknown != null)
             {
                 if (Marshal.IsComObject(m_pUnknown))
-                {
                     Marshal.ReleaseComObject(m_pUnknown);
-                }
                 m_pUnknown = null;
             }
         }
@@ -1354,11 +1118,8 @@ namespace Sonic
                 try
                 {
                     int hr = Marshal.QueryInterface(_this, ref _guid, out _interface);
-
                     if (SUCCEEDED(hr) && _interface != IntPtr.Zero)
-                    {
                         _object = Marshal.GetObjectForIUnknown(_interface);
-                    }
                 }
                 finally
                 {
@@ -1369,10 +1130,7 @@ namespace Sonic
             return _object;
         }
 
-        public object QueryInterface(Type _type)
-        {
-            return QueryInterface(_type.GUID);
-        }
+        public object QueryInterface(Type _type) => QueryInterface(_type.GUID);
 
         public bool IsSupported(Guid _guid)
         {
@@ -1388,23 +1146,13 @@ namespace Sonic
                 {
                     Marshal.Release(_this);
                     if (_interface != IntPtr.Zero)
-                    {
                         Marshal.Release(_interface);
-                    }
                 }
             }
             return false;
         }
 
-        public bool IsSupported(Type _type)
-        {
-            Guid _guid = _type.GUID;
-            if (_guid != Guid.Empty)
-            {
-                return IsSupported(_guid);
-            }
-            return false;
-        }
+        public bool IsSupported(Type _type) => _type.GUID != Guid.Empty ? IsSupported(_type.GUID) : false;
 
         #endregion
 
@@ -1413,60 +1161,33 @@ namespace Sonic
         public static bool operator ==(DSObject<T> _src, DSObject<T> _dest)
         {
             if (System.Object.ReferenceEquals(_src, _dest))
-            {
                 return true;
-            }
             if ((_src as Object) == (_dest as Object)) return true;
 
             if (((_src as Object) == null || _src.m_pUnknown == null)
                 && ((_dest as Object) == null || _dest.m_pUnknown == null))
-            {
                 return true;
-            }
             if ((_src as Object) != null && (_dest as Object) != null)
-            {
                 return _src.m_pUnknown == _dest.m_pUnknown;
-            }
             return false;
         }
 
-        public static bool operator !=(DSObject<T> _src, DSObject<T> _dest)
-        {
-            return !(_src == _dest);
-        }
+        public static bool operator !=(DSObject<T> _src, DSObject<T> _dest) => !(_src == _dest);
 
-        public static implicit operator T(DSObject<T> _object)
-        {
-            if (((object)_object) == null)
-            {
-                return null;
-            }
-            return _object.m_pUnknown;
-        }
+        public static implicit operator T(DSObject<T> _object) => ((object)_object) == null ? null : _object.m_pUnknown;
 
         public static implicit operator IntPtr(DSObject<T> _object)
         {
             if (((_object as Object) == null) || _object.m_pUnknown == null)
-            {
                 return IntPtr.Zero;
-            }
             return Marshal.GetIUnknownForObject(_object.m_pUnknown);
         }
 
-        public static implicit operator bool(DSObject<T> _object)
-        {
-            return (((object)_object) != null && _object.m_pUnknown != null);
-        }
+        public static implicit operator bool(DSObject<T> _object) => (((object)_object) != null && _object.m_pUnknown != null);
 
-        public static explicit operator DSObject<T>(IntPtr _ptr)
-        {
-            return new DSObject<T>(_ptr);
-        }
+        public static explicit operator DSObject<T>(IntPtr _ptr) => new DSObject<T>(_ptr);
 
-        public static explicit operator DSObject<T>(T _object)
-        {
-            return new DSObject<T>(_object);
-        }
+        public static explicit operator DSObject<T>(T _object) => new DSObject<T>(_object);
 
         #endregion
     }
@@ -1485,53 +1206,32 @@ namespace Sonic
             get
             {
                 Guid _guid = Guid.Empty;
-                if (m_pUnknown != null)
-                {
-                    m_pUnknown.GetClassID(out _guid);
-                }
+                m_pUnknown?.GetClassID(out _guid);
                 return _guid;
-
             }
         }
 
-        public string Name
-        {
-            get { return GetPropBagValue("FriendlyName"); }
-        }
+        public string Name=>GetPropBagValue("FriendlyName"); 
 
         public string DevicePath
         {
             get
             {
                 string _out = "";
-                if (m_pUnknown != null)
-                {
-                    m_pUnknown.GetDisplayName(null, null, out _out);
-                }
+                m_pUnknown?.GetDisplayName(null, null, out _out);
                 return _out;
             }
         }
 
-        public string this[string _value]
-        {
-            get { return GetPropBagValue(_value); }
-        }
+        public string this[string _value]=>GetPropBagValue(_value);
 
         #endregion
 
         #region Constructor
 
-        public MonikerInfo()
-            : base(IntPtr.Zero)
-        {
+        public MonikerInfo() : base(IntPtr.Zero) { }
 
-        }
-
-        public MonikerInfo(IMoniker _moniker)
-            : base(_moniker)
-        {
-
-        }
+        public MonikerInfo(IMoniker _moniker) : base(_moniker) { }
 
         public MonikerInfo(string _moniker)
         {
@@ -1547,9 +1247,7 @@ namespace Sonic
             finally
             {
                 if (_context != null)
-                {
                     Marshal.ReleaseComObject(_context);
-                }
             }
         }
 
@@ -1588,17 +1286,14 @@ namespace Sonic
             IPropertyBag _property = null;
             try
             {
-                object _object = null;
                 Guid _guid = typeof(IPropertyBag).GUID;
-                m_pUnknown.BindToStorage(null, null, ref _guid, out _object);
+                m_pUnknown.BindToStorage(null, null, ref _guid, out object _object);
                 _property = (IPropertyBag)_object;
                 object _value;
                 int hr = _property.Read(sPropName, out _value, null);
                 ASSERT(hr == S_OK);
                 if (SUCCEEDED(hr))
-                {
                     return _value as string;
-                }
             }
             catch
             {
@@ -1630,62 +1325,41 @@ namespace Sonic
 
         #region Properties
 
-        public Guid Category
-        {
-            get { return m_Category; }
-        }
+        public Guid Category=> m_Category; 
 
-        public T this[int index]
-        {
-            get { return m_Objects[index]; }
-        }
+        public T this[int index]=>m_Objects[index]; 
 
-        public T this[string name]
-        {
-            get
-            {
-                foreach (T _info in m_Objects)
-                {
-                    if (_info.Name == name || _info.DevicePath == name)
-                    {
-                        return _info;
-                    }
-                }
-                return null;
-            }
-        }
+        public T this[string name] => m_Objects.FirstOrDefault(x=>x.Name==name ||x.DevicePath==name);
+        //{
+        //    get
+        //    {
+        //        foreach (T _info in m_Objects)
+        //            if (_info.Name == name || _info.DevicePath == name)
+        //                return _info;
+        //        return null;
+        //    }
+        //}
 
-        public T this[Guid _clsid]
-        {
-            get
-            {
-                foreach (T _info in m_Objects)
-                {
-                    if (_info.ClassID == _clsid)
-                    {
-                        return _info;
-                    }
-                }
-                return null;
-            }
-        }
+        public T this[Guid _clsid]=> m_Objects.FirstOrDefault(x=>x.ClassID==_clsid);
+        //{
+        //    get
+        //    {
+        //        foreach (T _info in m_Objects)
+        //            if (_info.ClassID == _clsid)
+        //                return _info;
+        //        return null;
+        //    }
+        //}
 
-        public int Count
-        {
-            get { return m_Objects.Count; }
-        }
+        public int Count=>m_Objects.Count; 
 
-        public List<T> Objects
-        {
-            get { return m_Objects; }
-        }
+        public List<T> Objects=>m_Objects; 
 
         #endregion
 
         #region Constructor
 
-        public DSEnumerator(Guid _category)
-            : base(new Guid("62BE5D10-60EB-11d0-BD3B-00A0C911CE86"))
+        public DSEnumerator(Guid _category) : base(new Guid("62BE5D10-60EB-11d0-BD3B-00A0C911CE86"))
         {
             int hr = m_pUnknown.CreateClassEnumerator(ref _category, out m_pEnumMoniker, 0);
             ASSERT(hr == S_OK);
@@ -1695,11 +1369,10 @@ namespace Sonic
                 {
                     IMoniker[] aMonikers = new IMoniker[1];
                     while ((m_pEnumMoniker.Next(1, aMonikers, IntPtr.Zero) == 0))
-                    {
-                        T _moniker = new T();
-                        _moniker.Value = aMonikers[0];
-                        m_Objects.Add(_moniker);
-                    }
+                        m_Objects.Add(new T
+                        {
+                            Value = aMonikers[0]
+                        });
                 }
             }
         }
@@ -1729,19 +1402,13 @@ namespace Sonic
 
         #region IEnumerable<T> Members
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return m_Objects.GetEnumerator();
-        }
+        public IEnumerator<T> GetEnumerator()=>m_Objects.GetEnumerator();
 
         #endregion
 
         #region IEnumerable Members
 
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return m_Objects.GetEnumerator();
-        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()=>m_Objects.GetEnumerator();
 
         #endregion
     }
@@ -1864,17 +1531,9 @@ namespace Sonic
     {
         #region Constructor
 
-        public DSPin(IntPtr _pin)
-            : base(_pin)
-        {
+        public DSPin(IntPtr _pin) : base(_pin) { }
 
-        }
-
-        public DSPin(IPin _pin)
-            : base(_pin)
-        {
-
-        }
+        public DSPin(IPin _pin) : base(_pin) { }
 
         #endregion
 
@@ -1884,19 +1543,12 @@ namespace Sonic
         {
             get
             {
-                PinDirection _direction;
-                m_pUnknown.QueryDirection(out _direction);
+                m_pUnknown.QueryDirection(out PinDirection _direction);
                 return _direction;
             }
         }
 
-        public bool IsConnected
-        {
-            get
-            {
-                return ((ConnectedTo != null) && ConnectedTo == true);
-            }
-        }
+        public bool IsConnected=>((ConnectedTo != null) && ConnectedTo == true);
 
         public string Name
         {
@@ -1904,8 +1556,7 @@ namespace Sonic
             {
                 if (this)
                 {
-                    PinInfo _info;
-                    if (SUCCEEDED(m_pUnknown.QueryPinInfo(out _info)))
+                    if (SUCCEEDED(m_pUnknown.QueryPinInfo(out PinInfo _info)))
                     {
                         _info.filter = null;
                         return _info.name;
@@ -1921,11 +1572,8 @@ namespace Sonic
             {
                 if (this)
                 {
-                    PinInfo _info;
-                    if (SUCCEEDED(m_pUnknown.QueryPinInfo(out _info)))
-                    {
+                    if (SUCCEEDED(m_pUnknown.QueryPinInfo(out PinInfo _info)))
                         return new DSFilter(_info.filter);
-                    }
                 }
                 return null;
             }
@@ -1937,11 +1585,8 @@ namespace Sonic
             {
                 if (this)
                 {
-                    IntPtr pConnected;
-                    if (SUCCEEDED(m_pUnknown.ConnectedTo(out pConnected)))
-                    {
+                    if (SUCCEEDED(m_pUnknown.ConnectedTo(out IntPtr pConnected)))
                         return new DSPin(pConnected);
-                    }
                 }
                 return null;
             }
@@ -1955,9 +1600,7 @@ namespace Sonic
                 {
                     AMMediaType mt = new AMMediaType();
                     if (SUCCEEDED(m_pUnknown.ConnectionMediaType(mt)))
-                    {
                         return mt;
-                    }
                     mt.Free();
                 }
                 return null;
@@ -1973,11 +1616,8 @@ namespace Sonic
                     IAMStreamConfig _config = (IAMStreamConfig)QueryInterface(typeof(IAMStreamConfig));
                     if (_config != null)
                     {
-                        AMMediaType mt;
-                        if (SUCCEEDED(_config.GetFormat(out mt)))
-                        {
+                        if (SUCCEEDED(_config.GetFormat(out AMMediaType mt)))
                             return mt;
-                        }
                     }
                 }
                 return null;
@@ -2004,8 +1644,7 @@ namespace Sonic
                 if (this)
                 {
                     IEnumMediaTypes pEnum;
-                    IntPtr _ptr;
-                    if (SUCCEEDED(m_pUnknown.EnumMediaTypes(out _ptr)))
+                    if (SUCCEEDED(m_pUnknown.EnumMediaTypes(out IntPtr _ptr)))
                     {
                         pEnum = (IEnumMediaTypes)Marshal.GetObjectForIUnknown(_ptr);
                         IntPtr ulMediaCount = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(uint)));
@@ -2017,24 +1656,19 @@ namespace Sonic
                             {
                                 int hr = pEnum.Next(1, pTypes, ulMediaCount);
                                 if (hr != S_OK)
-                                {
                                     break;
-                                }
+
                                 ASSERT(Marshal.ReadInt32(ulMediaCount) == 1);
                                 IntPtr _ptrStructure = Marshal.ReadIntPtr(pTypes);
                                 try
                                 {
                                     if (_ptrStructure != IntPtr.Zero)
-                                    {
                                         _list.Add((AMMediaType)Marshal.PtrToStructure(_ptrStructure, typeof(AMMediaType)));
-                                    }
                                 }
                                 finally
                                 {
                                     if (_ptrStructure != IntPtr.Zero)
-                                    {
                                         Marshal.FreeCoTaskMem(_ptrStructure);
-                                    }
                                 }
                             }
                             while (true);
@@ -2059,17 +1693,13 @@ namespace Sonic
                 IntPtr ipOut = Marshal.AllocCoTaskMem(iSize);
                 try
                 {
-                    int cbBytes;
-
                     IKsPropertySet pKs = (IKsPropertySet)QueryInterface(typeof(IKsPropertySet));
                     if (pKs != null)
                     {
                         Guid g = PropSetID.Pin;
-                        int hr = pKs.Get(g, (int)AMPropertyPin.Category, IntPtr.Zero, 0, ipOut, iSize, out cbBytes);
+                        int hr = pKs.Get(g, (int)AMPropertyPin.Category, IntPtr.Zero, 0, ipOut, iSize, out int cbBytes);
                         if (SUCCEEDED(hr))
-                        {
                             _result = (Guid)Marshal.PtrToStructure(ipOut, typeof(Guid));
-                        }
                     }
                 }
                 finally
@@ -2096,10 +1726,7 @@ namespace Sonic
             }
         }
 
-        public int Count
-        {
-            get { return MediaTypes.Count; }
-        }
+        public int Count=>MediaTypes.Count; 
 
         #endregion
 
@@ -2109,10 +1736,8 @@ namespace Sonic
         {
             try
             {
-                if (!_pin)
-                {
-                    return Render();
-                }
+                if (!_pin) return Render();
+
                 if (!this) return E_POINTER;
                 IGraphBuilder _graph = Filter.FilterGraph;
                 if (_graph != null)
@@ -2120,13 +1745,9 @@ namespace Sonic
                     if (Direction != _pin.Direction)
                     {
                         if (Direction == PinDirection.Input)
-                        {
                             return (HRESULT)_graph.ConnectDirect(_pin.m_pUnknown, m_pUnknown, null);
-                        }
                         else
-                        {
                             return (HRESULT)_graph.ConnectDirect(m_pUnknown, _pin.m_pUnknown, null);
-                        }
                     }
                     return VFW_E_INVALID_DIRECTION;
                 }
@@ -2143,14 +1764,10 @@ namespace Sonic
             try
             {
                 HRESULT hr = ConnectDirect(_pin);
-                if (hr.Succeeded)
-                {
-                    return hr;
-                }
-                if (!_pin)
-                {
-                    return Render();
-                }
+                if (hr.Succeeded) return hr;
+
+                if (!_pin) return Render();
+
                 if (!this) return E_POINTER;
                 IGraphBuilder _graph = Filter.FilterGraph;
                 if (_graph != null)
@@ -2158,13 +1775,9 @@ namespace Sonic
                     if (Direction != _pin.Direction)
                     {
                         if (Direction == PinDirection.Input)
-                        {
                             return (HRESULT)_graph.Connect(_pin.m_pUnknown, m_pUnknown);
-                        }
                         else
-                        {
                             return (HRESULT)_graph.Connect(m_pUnknown, _pin.m_pUnknown);
-                        }
                     }
                     return VFW_E_INVALID_DIRECTION;
                 }
@@ -2189,9 +1802,7 @@ namespace Sonic
                     if (!_pin) return VFW_E_NOT_CONNECTED;
                     int hr = _graph.Disconnect(m_pUnknown);
                     if (SUCCEEDED(hr))
-                    {
                         return (HRESULT)_graph.Disconnect(_pin.m_pUnknown);
-                    }
                     return (HRESULT)hr;
                 }
                 return VFW_E_NOT_IN_GRAPH;
@@ -2217,9 +1828,7 @@ namespace Sonic
                 if (!this) return E_POINTER;
                 IGraphBuilder _graph = Filter.FilterGraph;
                 if (_graph != null)
-                {
                     return (HRESULT)_graph.Render(m_pUnknown);
-                }
                 return VFW_E_NOT_IN_GRAPH;
             }
             catch (Exception _exception)
@@ -2228,14 +1837,7 @@ namespace Sonic
             }
         }
 
-        public HRESULT IsAccepted(AMMediaType mt)
-        {
-            if (this)
-            {
-                return (HRESULT)m_pUnknown.QueryAccept(mt);
-            }
-            return (HRESULT)E_FAIL;
-        }
+        public HRESULT IsAccepted(AMMediaType mt) => (this) ? (HRESULT)m_pUnknown.QueryAccept(mt) : (HRESULT)E_FAIL;
 
         public DSPin RemoveFiltersChain()
         {
@@ -2272,20 +1874,14 @@ namespace Sonic
                 {
                     DSPin _result = null;
                     foreach (DSPin _pin in _disconnect)
-                    {
                         _result = _pin.RemoveFiltersChain();
-                    }
                     DSFilter _filter = _connected.Filter;
                     _filter.FilterGraph = null;
                     _filter.Dispose();
                     if (Direction == PinDirection.Output)
-                    {
                         _connected = this;
-                    }
                     else
-                    {
                         _connected = _result;
-                    }
                 }
             }
             return _connected;
@@ -2295,11 +1891,8 @@ namespace Sonic
 
         #region Overriden Methods
 
-        public override string ToString()
-        {
-            return " { " + base.ToString() + " } Name: '" + Name + "' ( " + Direction.ToString() + " )" + (IsConnected ? " Connected" : " Not Connected"); ;
-
-        }
+        //return " { " + base.ToString() + " } Name: '" + Name + "' ( " + Direction.ToString() + " )" + (IsConnected ? " Connected" : " Not Connected"); ;
+        public override string ToString() =>string.Format("{{{0}}} Name: \'{1}\' ( {2} ) {3}", base.ToString(), Name, Direction, (IsConnected ? " Connected" : " Not Connected"));
 
         #endregion
     }
@@ -2313,22 +1906,11 @@ namespace Sonic
     {
         #region Constructor
 
-        protected DSFilter()
-            : base()
-        {
+        protected DSFilter() : base() { }
 
-        }
+        public DSFilter(IBaseFilter _filter) : base(_filter) { }
 
-        public DSFilter(IBaseFilter _filter)
-            : base(_filter)
-        {
-        }
-
-        public DSFilter(Guid _filter)
-            : base(_filter)
-        {
-
-        }
+        public DSFilter(Guid _filter) : base(_filter) { }
 
         public DSFilter(string _moniker)
         {
@@ -2348,15 +1930,12 @@ namespace Sonic
                 if (this)
                 {
                     IPin[] pPins = new IPin[1];
-                    IEnumPins pEnum;
-                    if (SUCCEEDED(m_pUnknown.EnumPins(out pEnum)))
+                    if (SUCCEEDED(m_pUnknown.EnumPins(out IEnumPins pEnum)))
                     {
                         while (pEnum.Next(1, pPins, IntPtr.Zero) == S_OK)
                         {
                             if (pPins[0] != null)
-                            {
                                 _pins.Add(new DSPin(pPins[0]));
-                            }
                         }
                     }
                 }
@@ -2373,9 +1952,7 @@ namespace Sonic
                 foreach (DSPin _pin in _pins)
                 {
                     if (_pin.Direction == PinDirection.Output)
-                    {
                         _output.Add(_pin);
-                    }
                 }
                 return _output;
             }
@@ -2390,9 +1967,7 @@ namespace Sonic
                 foreach (DSPin _pin in _pins)
                 {
                     if (_pin.Direction == PinDirection.Input)
-                    {
                         _output.Add(_pin);
-                    }
                 }
                 return _output;
             }
@@ -2408,9 +1983,7 @@ namespace Sonic
                     if (SUCCEEDED(m_pUnknown.QueryFilterInfo(out _info)))
                     {
                         if (_info.pGraph != null)
-                        {
                             Marshal.ReleaseComObject(_info.pGraph);
-                        }
                         return _info.achName;
                     }
                 }
@@ -2418,10 +1991,7 @@ namespace Sonic
             }
         }
 
-        public bool HaveProperties
-        {
-            get { return IsSupported(typeof(ISpecifyPropertyPages)); }
-        }
+        public bool HaveProperties=>IsSupported(typeof(ISpecifyPropertyPages)); 
 
         public IGraphBuilder FilterGraph
         {
@@ -2430,8 +2000,7 @@ namespace Sonic
                 IGraphBuilder _graph = null;
                 if (this)
                 {
-                    FilterInfo _info;
-                    if (SUCCEEDED(m_pUnknown.QueryFilterInfo(out _info)))
+                    if (SUCCEEDED(m_pUnknown.QueryFilterInfo(out FilterInfo _info)))
                     {
                         if (_info.pGraph != null)
                         {
@@ -2448,8 +2017,7 @@ namespace Sonic
                 {
                     if (value == null)
                     {
-                        FilterInfo _info;
-                        if (SUCCEEDED(m_pUnknown.QueryFilterInfo(out _info)))
+                        if (SUCCEEDED(m_pUnknown.QueryFilterInfo(out FilterInfo _info)))
                         {
                             if (_info.pGraph != null)
                             {
@@ -2490,94 +2058,41 @@ namespace Sonic
             }
         }
 
-        public DSPin this[int index]
-        {
-            get
-            {
-                return Pins[index];
-            }
-        }
+        public DSPin this[int index] => Pins[index];
 
-        public DSPin this[string _name]
-        {
-            get
-            {
-                List<DSPin> _pins = Pins;
-                foreach (DSPin _pin in _pins)
-                {
-                    if (_pin.Name == _name) return _pin;
-                }
-                return null;
-            }
-        }
+        public DSPin this[string _name]=>GetPin(_name);
 
-        public int Count
-        {
-            get { return Pins.Count; }
-        }
+        public int Count => Pins.Count;
 
         #endregion
 
         #region Public Methods
 
-        public HRESULT ShowProperties()
-        {
-            return ShowProperties(IntPtr.Zero);
-        }
+        public HRESULT ShowProperties()=>ShowProperties(IntPtr.Zero);
 
-        public HRESULT ShowProperties(IntPtr _hwnd)
-        {
-            if (DirectShow.BaseClasses.BasePropertyPage.ShowPropertyPages(m_pUnknown, _hwnd))
-            {
-                return S_OK;
-            }
-            return E_FAIL;
-        }
+        public HRESULT ShowProperties(IntPtr _hwnd)=>DirectShow.BaseClasses.BasePropertyPage.ShowPropertyPages(m_pUnknown, _hwnd) ? S_OK : E_FAIL;
 
-        public DSPin GetPin(PinDirection _direction)
-        {
-            return GetPin(_direction, 0);
-        }
+        public DSPin GetPin(PinDirection _direction)=>GetPin(_direction, 0);
 
         public DSPin GetPin(PinDirection _direction, int index)
         {
             List<DSPin> _pins = null;
             switch (_direction)
             {
-                case PinDirection.Input:
-                    _pins = Input;
-                    break;
-                case PinDirection.Output:
-                    _pins = Output;
-                    break;
+                case PinDirection.Input: _pins = Input; break;
+                case PinDirection.Output: _pins = Output; break;
             }
+
             ASSERT(_pins);
+
             if (index >= 0 && _pins.Count < index)
-            {
                 return _pins[index];
-            }
             return null;
         }
 
-        public DSPin GetPin(string _name)
-        {
-            List<DSPin> _pins = Pins;
-            foreach (DSPin _pin in _pins)
-            {
-                if (_pin.Name == _name) return _pin;
-            }
-            return null;
-        }
+        public DSPin GetPin(string _name) => Pins.FirstOrDefault(x => x.Name == _name);
 
-        public DSPin GetPin(Guid _category)
-        {
-            List<DSPin> _pins = Pins;
-            foreach (DSPin _pin in _pins)
-            {
-                if (_pin.Category == _category) return _pin;
-            }
-            return null;
-        }
+        public DSPin GetPin(Guid _category) => Pins.FirstOrDefault(x => x.Category == _category);
 
         public HRESULT Connect(DSFilter _filter)
         {
@@ -2611,13 +2126,10 @@ namespace Sonic
             {
                 List<DSPin> _pins;
                 if (_pin.Direction == PinDirection.Output)
-                {
                     _pins = Input;
-                }
                 else
-                {
                     _pins = Output;
-                }
+
                 foreach (DSPin _connect in _pins)
                 {
                     if (!_connect.IsConnected)
@@ -2633,33 +2145,25 @@ namespace Sonic
 
         public DSPin RemoveFiltersChain()
         {
-            DSPin _input = null;
-            DSPin _output = null;
-            _output = RemoveFiltersChain(PinDirection.Output);
-            _input = RemoveFiltersChain(PinDirection.Input);
-            if (_output != null) return _output;
-            return _input;
+            DSPin _output = RemoveFiltersChain(PinDirection.Output);
+            DSPin _input = RemoveFiltersChain(PinDirection.Input);
+            return _output != null ? _output : _input;
         }
 
         public DSPin RemoveFiltersChain(PinDirection _direction)
         {
             List<DSPin> _pins;
             if (_direction == PinDirection.Input)
-            {
                 _pins = Input;
-            }
             else
-            {
                 _pins = Output;
-            }
+
             DSPin _result = null;
             foreach (DSPin _pin in _pins)
             {
                 DSPin _removed = _pin.RemoveFiltersChain();
                 if (_removed != null && _result == null)
-                {
                     _result = _removed;
-                }
             }
             return _result;
         }
@@ -2668,10 +2172,7 @@ namespace Sonic
 
         #region Overriden Methods
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         #endregion
     }
@@ -2688,12 +2189,9 @@ namespace Sonic
                 IFileSourceFilter _source = (IFileSourceFilter)QueryInterface(typeof(IFileSourceFilter));
                 if (_source != null)
                 {
-                    string _path;
-                    int hr = _source.GetCurFile(out _path, null);
+                    int hr = _source.GetCurFile(out string _path, null);
                     if (SUCCEEDED(hr))
-                    {
                         return _path;
-                    }
                 }
                 return null;
             }
@@ -2712,25 +2210,13 @@ namespace Sonic
 
         #region Constructor
 
-        protected DSBaseSourceFilter()
-            : base()
-        {
-        }
+        protected DSBaseSourceFilter() : base() { }
 
-        public DSBaseSourceFilter(IBaseFilter _filter)
-            : base(_filter)
-        {
-        }
+        public DSBaseSourceFilter(IBaseFilter _filter) : base(_filter) { }
 
-        public DSBaseSourceFilter(Guid _filter)
-            : base(_filter)
-        {
-        }
+        public DSBaseSourceFilter(Guid _filter) : base(_filter) { }
 
-        public DSBaseSourceFilter(string _moniker)
-            : base(_moniker)
-        {
-        }
+        public DSBaseSourceFilter(string _moniker) : base(_moniker) { }
 
         #endregion
     }
@@ -2747,12 +2233,9 @@ namespace Sonic
                 IFileSinkFilter _sink = (IFileSinkFilter)QueryInterface(typeof(IFileSinkFilter));
                 if (_sink != null)
                 {
-                    string _path;
-                    int hr = _sink.GetCurFile(out _path, null);
+                    int hr = _sink.GetCurFile(out string _path, null);
                     if (SUCCEEDED(hr))
-                    {
                         return _path;
-                    }
                 }
                 return null;
             }
@@ -2771,25 +2254,13 @@ namespace Sonic
 
         #region Constructor
 
-        protected DSBaseWriterFilter()
-            : base()
-        {
-        }
+        protected DSBaseWriterFilter() : base() { }
 
-        public DSBaseWriterFilter(IBaseFilter _filter)
-            : base(_filter)
-        {
-        }
+        public DSBaseWriterFilter(IBaseFilter _filter) : base(_filter) { }
 
-        public DSBaseWriterFilter(Guid _filter)
-            : base(_filter)
-        {
-        }
+        public DSBaseWriterFilter(Guid _filter) : base(_filter) { }
 
-        public DSBaseWriterFilter(string _moniker)
-            : base(_moniker)
-        {
-        }
+        public DSBaseWriterFilter(string _moniker) : base(_moniker) { }
 
         #endregion
     }
@@ -2801,71 +2272,31 @@ namespace Sonic
     [ComVisible(false)]
     public class DSVideoCaptureCategory : DSCategory
     {
-        #region Constructor
-
-        public DSVideoCaptureCategory()
-            : base(FilterCategory.VideoInputDevice)
-        {
-
-        }
-
-        #endregion
+        public DSVideoCaptureCategory() : base(FilterCategory.VideoInputDevice) { }
     }
 
     [ComVisible(false)]
     public class DSAudioCaptureCategory : DSCategory
     {
-        #region Constructor
-
-        public DSAudioCaptureCategory()
-            : base(FilterCategory.AudioInputDevice)
-        {
-
-        }
-
-        #endregion
+        public DSAudioCaptureCategory() : base(FilterCategory.AudioInputDevice) { }
     }
 
     [ComVisible(false)]
     public class DSVideoCompressorsCategory : DSCategory
     {
-        #region Constructor
-
-        public DSVideoCompressorsCategory()
-            : base(FilterCategory.VideoCompressorCategory)
-        {
-
-        }
-
-        #endregion
+        public DSVideoCompressorsCategory() : base(FilterCategory.VideoCompressorCategory) { }
     }
 
     [ComVisible(false)]
     public class DSAudioCompressorsCategory : DSCategory
     {
-        #region Constructor
-
-        public DSAudioCompressorsCategory()
-            : base(FilterCategory.AudioCompressorCategory)
-        {
-
-        }
-
-        #endregion
+        public DSAudioCompressorsCategory() : base(FilterCategory.AudioCompressorCategory) { }
     }
 
     [ComVisible(false)]
     public class DSAudioRenderersCategory : DSCategory
     {
-        #region Constructor
-
-        public DSAudioRenderersCategory()
-            : base(FilterCategory.AudioRendererCategory)
-        {
-
-        }
-
-        #endregion
+        public DSAudioRenderersCategory() : base(FilterCategory.AudioRendererCategory) { }
     }
 
     #endregion
@@ -2876,70 +2307,49 @@ namespace Sonic
     [Guid("f8388a40-d5bb-11d0-be5a-0080c706568e")]
     public class DSInfTeeFilter : DSFilter
     {
-        public DSInfTeeFilter()
-            : base()
-        {
-        }
+        public DSInfTeeFilter() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("cc58e280-8aa1-11d1-b3f1-00aa003761c5")]
     public class DSSmartTeeFilter : DSFilter
     {
-        public DSSmartTeeFilter()
-            : base()
-        {
-        }
+        public DSSmartTeeFilter() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("8596e5f0-0da5-11d0-bd21-00a0c911ce86")]
     public class DSFileWriter : DSBaseWriterFilter
     {
-        public DSFileWriter()
-            : base()
-        {
-        }
+        public DSFileWriter() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("e436ebb5-524f-11ce-9f53-0020af0ba770")]
     public class DSFileSourceAsync : DSBaseSourceFilter
     {
-        public DSFileSourceAsync()
-            : base()
-        {
-        }
+        public DSFileSourceAsync() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("79376820-07d0-11cf-a24d-0020afd79767")]
     public class DSDSoundRendererFilter : DSFilter
     {
-        public DSDSoundRendererFilter()
-            : base()
-        {
-        }
+        public DSDSoundRendererFilter() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("70e102b0-5556-11ce-97c0-00aa0055595a")]
     public class DSVideoRenderer : DSFilter
     {
-        public DSVideoRenderer()
-            : base()
-        {
-        }
+        public DSVideoRenderer() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("c1f400a4-3f08-11d3-9f0b-006008039e37")]
     public class DSNullRenderer : DSFilter
     {
-        public DSNullRenderer()
-            : base()
-        {
-        }
+        public DSNullRenderer() : base() { }
     }
 
     [ComVisible(false)]
@@ -2977,9 +2387,7 @@ namespace Sonic
                 {
                     AMMediaType mt = new AMMediaType();
                     if (SUCCEEDED(m_SampleGrabber.GetConnectedMediaType(mt)))
-                    {
                         return mt;
-                    }
                     mt.Free();
                 }
                 return null;
@@ -2996,7 +2404,7 @@ namespace Sonic
 
         public bool BufferedSamples
         {
-            get { return m_BufferedSamples; }
+            get => m_BufferedSamples; 
             set
             {
                 if (m_BufferedSamples != value)
@@ -3007,17 +2415,16 @@ namespace Sonic
                         hr = (HRESULT)m_SampleGrabber.SetBufferSamples(value);
                         hr.Assert();
                     }
+
                     if (hr.Succeeded)
-                    {
                         m_BufferedSamples = value;
-                    }
                 }
             }
         }
 
         public bool OneShot
         {
-            get { return m_bOneShot; }
+            get => m_bOneShot; 
             set
             {
                 if (m_bOneShot != value)
@@ -3028,10 +2435,9 @@ namespace Sonic
                         hr = (HRESULT)m_SampleGrabber.SetOneShot(value);
                         hr.Assert();
                     }
+
                     if (hr.Succeeded)
-                    {
                         m_bOneShot = value;
-                    }
                 }
             }
         }
@@ -3040,8 +2446,7 @@ namespace Sonic
 
         #region Constructor
 
-        public DSSampleGrabberFilter()
-            : base()
+        public DSSampleGrabberFilter() : base()
         {
             m_SampleGrabber = (ISampleGrabber)QueryInterface(typeof(ISampleGrabber));
             ASSERT(m_SampleGrabber);
@@ -3060,17 +2465,11 @@ namespace Sonic
 
         #region ISampleGrabberCB Members
 
-        public int SampleCB(double _time, IntPtr pSample)
-        {
-            return NOERROR;
-        }
+        public int SampleCB(double _time, IntPtr pSample)=>NOERROR;        
 
         public int BufferCB(double _time, IntPtr pBuffer, int _length)
         {
-            if (OnSample != null)
-            {
-                OnSample(this, pBuffer, _length);
-            }
+            OnSample?.Invoke(this, pBuffer, _length);
             return NOERROR;
         }
 
@@ -3096,30 +2495,21 @@ namespace Sonic
     [Guid("7c23220e-55bb-11d3-8b16-00c04fb6bd3d")]
     public class DSWMAsfWritter : DSBaseWriterFilter
     {
-        public DSWMAsfWritter()
-            : base()
-        {
-        }
+        public DSWMAsfWritter() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("187463A0-5BB7-11d3-ACBE-0080C75E246E")]
     public class DSWMAsfReader : DSBaseSourceFilter
     {
-        public DSWMAsfReader()
-            : base()
-        {
-        }
+        public DSWMAsfReader() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("E2510970-F137-11CE-8B67-00AA00A3F1A6")]
     public class DSAviMuxFilter : DSFilter
     {
-        public DSAviMuxFilter()
-            : base()
-        {
-        }
+        public DSAviMuxFilter() : base() { }
     }
 
     #endregion
@@ -3130,20 +2520,14 @@ namespace Sonic
     [Guid("e436ebb3-524f-11ce-9f53-0020af0ba770")]
     public class DSGraphBuilder : DSObject<IGraphBuilder>
     {
-        public DSGraphBuilder()
-            : base()
-        {
-        }
+        public DSGraphBuilder() : base() { }
     }
 
     [ComVisible(false)]
     [Guid("BF87B6E1-8C27-11d0-B3F0-00AA003761C5")]
     public class DSCaptureGraphBuilder2 : DSObject<ICaptureGraphBuilder2>
     {
-        public DSCaptureGraphBuilder2()
-            : base()
-        {
-        }
+        public DSCaptureGraphBuilder2() : base() { }
     }
 
     #endregion
@@ -3218,15 +2602,9 @@ namespace Sonic
 
         #region Constructor
 
-        public DSFilterGraphBase()
-        {
+        public DSFilterGraphBase() { }
 
-        }
-
-        ~DSFilterGraphBase()
-        {
-            Dispose();
-        }
+        ~DSFilterGraphBase() { Dispose(); }
 
         #endregion
 
@@ -3245,10 +2623,9 @@ namespace Sonic
                         hr = m_MediaControl.GetState(200, out _state);
                     }
                     while (hr == 0x00040237 || hr == 0x00040268);
+
                     if (hr == 0)
-                    {
                         return _state == FilterState.Running;
-                    }
                 }
                 return false;
             }
@@ -3268,9 +2645,7 @@ namespace Sonic
                     }
                     while (hr == 0x00040237 || hr == 0x00040268);
                     if (hr == 0)
-                    {
                         return _state == FilterState.Paused;
-                    }
                 }
                 return false;
             }
@@ -3290,9 +2665,7 @@ namespace Sonic
                     }
                     while (hr == 0x00040237 || hr == 0x00040268);
                     if (hr == 0)
-                    {
                         return _state == FilterState.Stopped;
-                    }
                 }
                 return true;
             }
@@ -3304,8 +2677,7 @@ namespace Sonic
             {
                 if (m_MediaSeeking != null)
                 {
-                    long _time;
-                    int hr = m_MediaSeeking.GetCurrentPosition(out _time);
+                    int hr = m_MediaSeeking.GetCurrentPosition(out long _time);
                     Debug.Assert(hr == 0);
                     if (hr == 0) return _time;
                 }
@@ -3319,7 +2691,7 @@ namespace Sonic
                     DsLong _current = value;
                     int hr = m_MediaSeeking.SetPositions(_current, AMSeekingSeekingFlags.AbsolutePositioning, _stop, AMSeekingSeekingFlags.NoPositioning);
                     Debug.Assert(hr >= 0);
-                    if (OnPositionChange != null) OnPositionChange(this, EventArgs.Empty);
+                    OnPositionChange?.Invoke(this, EventArgs.Empty);
                 }
             }
         }
@@ -3330,8 +2702,7 @@ namespace Sonic
             {
                 if (m_MediaSeeking != null)
                 {
-                    long _time;
-                    int hr = m_MediaSeeking.GetDuration(out _time);
+                    int hr = m_MediaSeeking.GetDuration(out long _time);
                     Debug.Assert(hr == 0);
                     if (hr == 0) return _time;
                 }
@@ -3341,20 +2712,18 @@ namespace Sonic
 
         public int Volume
         {
-            get { return m_iVolume; }
+            get => m_iVolume;
             set
             {
                 m_iVolume = value;
                 if (!m_bMute)
-                {
                     SetVolume(value);
-                }
             }
         }
 
         public bool Mute
         {
-            get { return m_bMute; }
+            get => m_bMute;
             set
             {
                 if (m_bMute != value)
@@ -3367,10 +2736,7 @@ namespace Sonic
 
         public double Rate
         {
-            get
-            {
-                return m_dRate;
-            }
+            get => m_dRate;
             set
             {
                 if (value > 0 && value <= 2.0)
@@ -3379,9 +2745,7 @@ namespace Sonic
                     {
                         int hr = m_MediaSeeking.SetRate(value);
                         if (hr == 0)
-                        {
                             m_dRate = value;
-                        }
                     }
                     else
                     {
@@ -3393,7 +2757,7 @@ namespace Sonic
 
         public System.Windows.Forms.Control VideoControl
         {
-            get { return m_VideoControl; }
+            get => m_VideoControl;
             set
             {
                 if (m_VideoControl != value)
@@ -3440,14 +2804,11 @@ namespace Sonic
                     }
                     if (m_GraphBuilder != null)
                     {
-                        IEnumFilters pEnum;
-                        if (SUCCEEDED(m_GraphBuilder.EnumFilters(out pEnum)))
+                        if (SUCCEEDED(m_GraphBuilder.EnumFilters(out IEnumFilters pEnum)))
                         {
                             IBaseFilter[] aFilters = new IBaseFilter[1];
                             while (S_OK == pEnum.Next(1, aFilters, IntPtr.Zero))
-                            {
                                 m_Filters.Add(new DSFilter(aFilters[0]));
-                            }
                             Marshal.ReleaseComObject(pEnum);
                         }
                     }
@@ -3456,10 +2817,7 @@ namespace Sonic
             }
         }
 
-        public int Count
-        {
-            get { return Filters.Count; }
-        }
+        public int Count=>Filters.Count; 
 
         public DSFilter AudioRenderer
         {
@@ -3467,12 +2825,8 @@ namespace Sonic
             {
                 List<DSFilter> _filters = Filters;
                 foreach (DSFilter _filter in _filters)
-                {
                     if (_filter.IsSupported(typeof(IBasicAudio).GUID))
-                    {
                         return _filter;
-                    }
-                }
                 return null;
             }
         }
@@ -3483,12 +2837,8 @@ namespace Sonic
             {
                 List<DSFilter> _filters = Filters;
                 foreach (DSFilter _filter in _filters)
-                {
                     if (_filter.IsSupported(typeof(IVideoWindow)))
-                    {
                         return _filter;
-                    }
-                }
                 return null;
             }
         }
@@ -3514,23 +2864,13 @@ namespace Sonic
             {
                 List<DSFilter> _filters = Filters;
                 foreach (DSFilter _filter in _filters)
-                {
                     if (_filter.Name == _name)
-                    {
                         return _filter;
-                    }
-                }
                 return null;
             }
         }
 
-        public bool IsAudioSupported
-        {
-            get
-            {
-                return ((AudioRenderer != null) && AudioRenderer == true);
-            }
-        }
+        public bool IsAudioSupported => ((AudioRenderer != null) && AudioRenderer == true);
 
         #endregion
 
@@ -3653,13 +2993,9 @@ namespace Sonic
             if (m_BasicAudio == null)
             {
                 if (m_GraphBuilder == null)
-                {
                     return;
-                }
                 else
-                {
                     m_BasicAudio = (IBasicAudio)m_GraphBuilder;
-                }
             }
             m_BasicAudio.put_Volume(_volume);
         }
@@ -3678,13 +3014,9 @@ namespace Sonic
             catch (Exception _exception)
             {
                 if (_exception is COMException)
-                {
                     hr = (HRESULT)((COMException)_exception).ErrorCode;
-                }
                 else
-                {
                     hr = E_UNEXPECTED;
-                }
             }
             finally
             {
@@ -3692,18 +3024,16 @@ namespace Sonic
                 {
                     while (m_Filters.Count > 0)
                     {
-                        DSFilter _filter = m_Filters[0];
+                        DSFilter filter = m_Filters[0];
                         m_Filters.RemoveAt(0);
-                        _filter.Dispose();
+                        filter.Dispose();
                     }
-                    IEnumFilters pEnum;
-                    if (SUCCEEDED(m_GraphBuilder.EnumFilters(out pEnum)))
+
+                    if (SUCCEEDED(m_GraphBuilder.EnumFilters(out IEnumFilters pEnum)))
                     {
                         IBaseFilter[] aFilters = new IBaseFilter[1];
                         while (S_OK == pEnum.Next(1, aFilters, IntPtr.Zero))
-                        {
                             m_Filters.Add(new DSFilter(aFilters[0]));
-                        }
                         Marshal.ReleaseComObject(pEnum);
                     }
                 }
@@ -3760,26 +3090,15 @@ namespace Sonic
         {
             HRESULT hr = InitInterfaces();
             if (hr.Succeeded)
-            {
-                if (OnPlaybackPrepared != null) OnPlaybackPrepared(this, EventArgs.Empty);
-            }
+                OnPlaybackPrepared?.Invoke(this, EventArgs.Empty);
             return hr;
         }
 
-        protected virtual HRESULT Unload()
-        {
-            return CloseInterfaces();
-        }
+        protected virtual HRESULT Unload() => CloseInterfaces();
 
-        protected virtual HRESULT OnInitInterfaces()
-        {
-            return (HRESULT)NOERROR;
-        }
+        protected virtual HRESULT OnInitInterfaces() => (HRESULT)NOERROR;
 
-        protected virtual HRESULT OnCloseInterfaces()
-        {
-            return (HRESULT)NOERROR;
-        }
+        protected virtual HRESULT OnCloseInterfaces() => (HRESULT)NOERROR;
 
         protected virtual void SettingUpVideoWindow()
         {
@@ -3814,7 +3133,9 @@ namespace Sonic
                 m_MediaSeeking.SetRate(m_dRate);
                 m_MediaSeeking.GetRate(out m_dRate);
             }
-            if (OnPlaybackReady != null) OnPlaybackReady(this, EventArgs.Empty);
+
+            OnPlaybackReady?.Invoke(this, EventArgs.Empty);
+
             return (HRESULT)hr;
         }
 
@@ -3823,27 +3144,17 @@ namespace Sonic
             if (m_MediaEventEx != null)
             {
                 int hr = 0;
-                int _param1, _param2;
-                EventCode _code;
                 while (hr == 0)
                 {
-                    hr = m_MediaEventEx.GetEvent(out _code, out _param1, out _param2, 20);
+                    int _param2;
+                    hr = m_MediaEventEx.GetEvent(out EventCode _code, out int _param1, out _param2, 20);
                     if (hr == 0)
                     {
                         hr = m_MediaEventEx.FreeEventParams(_code, _param1, _param2);
 
-                        if (_code == EventCode.Complete)
-                        {
-                            return true;
-                        }
-                        if (_code == EventCode.ErrorAbort)
-                        {
-                            return true;
-                        }
-                        if (_code == EventCode.DeviceLost)
-                        {
-                            return true;
-                        }
+                        if (_code == EventCode.Complete) return true;
+                        if (_code == EventCode.ErrorAbort) return true;
+                        if (_code == EventCode.DeviceLost) return true;
                     }
                 }
             }
@@ -3853,9 +3164,7 @@ namespace Sonic
         protected virtual void ResizeVideoWindow()
         {
             if (m_VideoWindow != null && m_VideoControl != null)
-            {
                 m_VideoWindow.SetWindowPosition(0, 0, m_VideoControl.Width, m_VideoControl.Height);
-            }
         }
 
         #endregion
@@ -3871,19 +3180,13 @@ namespace Sonic
             }
         }
 
-        private void VideoControl_Resize(object sender, EventArgs e)
-        {
-            ResizeVideoWindow();
-        }
+        private void VideoControl_Resize(object sender, EventArgs e) => ResizeVideoWindow();
 
         #endregion
 
         #region IDisposable Members
 
-        public virtual void Dispose()
-        {
-            CloseInterfaces();
-        }
+        public virtual void Dispose() => CloseInterfaces();
 
         #endregion
     }
@@ -3919,44 +3222,24 @@ namespace Sonic
 
         #region Properties
 
-        public string FileName
-        {
-            get { return m_sFileName; }
-            set { Open(value); }
-        }
+        public string FileName { get => m_sFileName; set => Open(value); }
 
         #endregion
 
         #region Public Methods
 
-        public HRESULT Open()
-        {
-            return Open(true);
-        }
+        public HRESULT Open() => Open(true);
 
-        public HRESULT Open(bool bStart)
-        {
-            return Open(m_sFileName, bStart);
-        }
+        public HRESULT Open(bool bStart) => Open(m_sFileName, bStart);
 
-        public HRESULT Open(string sFileName)
-        {
-            return Open(sFileName, true);
-        }
+        public HRESULT Open(string sFileName) => Open(sFileName, true);
 
         public virtual HRESULT Open(string sFileName, bool bStart)
         {
             if (sFileName != null && sFileName != "")
             {
                 m_sFileName = sFileName;
-                if (bStart)
-                {
-                    return Start();
-                }
-                else
-                {
-                    return Load();
-                }
+                return bStart ? Start() : Load();
             }
             return E_POINTER;
         }

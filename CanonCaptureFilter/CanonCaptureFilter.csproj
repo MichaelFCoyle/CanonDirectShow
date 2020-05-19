@@ -51,8 +51,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api.cs" />
+    <Compile Include="CameraStats.cs" />
     <Compile Include="Canon\CanonCameraFilter2.cs" />
     <Compile Include="Canon\CanonSourceStream.cs" />
+    <Compile Include="Controller.cs" />
     <Compile Include="FilterAboutForm.cs">
       <SubType>Form</SubType>
     </Compile>

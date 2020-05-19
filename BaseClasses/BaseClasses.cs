@@ -2107,7 +2107,9 @@ namespace DirectShow.BaseClasses
                         hr = OnInitializePins();
                         if (FAILED(hr)) return hr;
                     }
+
                     ASSERT(m_Pins);
+
                     for (int i = 0; i < m_Pins.Count; i++)
                     {
                         if (m_Pins[i].IsConnected)
@@ -2133,6 +2135,7 @@ namespace DirectShow.BaseClasses
                     hr = Pause();
                     if (FAILED(hr)) return hr;
                 }
+
                 if (m_State != FilterState.Running)
                 {
                     if (m_Pins == null)
@@ -2141,7 +2144,9 @@ namespace DirectShow.BaseClasses
                         hr = OnInitializePins();
                         if (FAILED(hr)) return hr;
                     }
+
                     ASSERT(m_Pins);
+                    
                     for (int i = 0; i < m_Pins.Count; i++)
                     {
                         if (m_Pins[i].IsConnected)
@@ -2170,7 +2175,9 @@ namespace DirectShow.BaseClasses
                         if (FAILED(hr)) return hr;
                         hr = NOERROR;
                     }
+
                     ASSERT(m_Pins);
+                    
                     for (int i = 0; i < m_Pins.Count; i++)
                     {
                         if (m_Pins[i].IsConnected)
@@ -2263,39 +2270,39 @@ namespace DirectShow.BaseClasses
         protected virtual long SizeMax()
         {
             long _size = 0;
-            MemoryStream _stream = new MemoryStream();
+            MemoryStream stream = new MemoryStream();
             try
             {
-                _stream = new MemoryStream();
-                HRESULT hr = WriteToStream(_stream);
+                stream = new MemoryStream();
+                HRESULT hr = WriteToStream(stream);
                 if (hr == S_OK)
-                    _size = _stream.Length;
+                    _size = stream.Length;
             }
             finally
             {
-                _stream.Dispose();
+                stream.Dispose();
             }
             return _size;
         }
 
-        protected virtual HRESULT WriteToStream(Stream _stream) => NOERROR;
+        protected virtual HRESULT WriteToStream(Stream stream) => NOERROR;
 
-        protected virtual HRESULT ReadFromStream(Stream _stream) => NOERROR;
+        protected virtual HRESULT ReadFromStream(Stream stream) => NOERROR;
 
         #endregion
 
         #region Registry Helper Functions
 
-        protected object GetFilterRegistryValue(string _name, object _default)
+        protected object GetFilterRegistryValue(string name, object _default)
         {
-            if (!string.IsNullOrEmpty(_name))
+            if (!string.IsNullOrEmpty(name))
             {
                 Microsoft.Win32.RegistryKey _key = null;
                 try
                 {
                     string _path = "CLSID\\" + this.GetType().GUID.ToString("B") + "\\" + m_csRegistryPath;
                     _key = Microsoft.Win32.Registry.ClassesRoot.CreateSubKey(_path);
-                    return _key.GetValue(_name, _default);
+                    return _key.GetValue(name, _default);
                 }
                 catch (Exception _exception)
                 {
@@ -2341,25 +2348,13 @@ namespace DirectShow.BaseClasses
 
         #region Setup Helper Methods
 
-        protected virtual int BeforeInstall(ref RegFilter2 _reginfo, ref IFilterMapper2 _mapper2)
-        {
-            return NOERROR;
-        }
+        protected virtual int BeforeInstall(ref RegFilter2 _reginfo, ref IFilterMapper2 _mapper2)=>NOERROR;
 
-        protected virtual int AfterInstall(HRESULT hr, ref RegFilter2 _reginfo, ref IFilterMapper2 _mapper2)
-        {
-            return NOERROR;
-        }
+        protected virtual int AfterInstall(HRESULT hr, ref RegFilter2 _reginfo, ref IFilterMapper2 _mapper2)=>NOERROR;
 
-        protected virtual int BeforeUninstall(ref IFilterMapper2 _mapper2)
-        {
-            return NOERROR;
-        }
+        protected virtual int BeforeUninstall(ref IFilterMapper2 _mapper2)=>NOERROR;
 
-        protected virtual int AfterUninstall(HRESULT hr, ref IFilterMapper2 _mapper2)
-        {
-            return NOERROR;
-        }
+        protected virtual int AfterUninstall(HRESULT hr, ref IFilterMapper2 _mapper2)=>NOERROR;        
 
         #endregion
 

@@ -10,38 +10,71 @@ using System.Runtime.InteropServices;
 namespace CanonCaptureFilter
 {
     [ComVisible(false)]
-    public class CanonSourceStream : SourceStream, IAMPushSource
+    public class CanonSourceStream : 
+        SourceStream, 
+        IAMPushSource, 
+        IKsPropertySet,
+        IAMBufferNegotiation
     {
-        readonly SDKHandler m_CameraHandler = new SDKHandler();
+        #region fields
+
         BitmapInfo m_bmi = new BitmapInfo() { bmiHeader = new BitmapInfoHeader() };
         Bitmap m_lastFrame;
 
-        int m_width;
-        int m_height;
-        int m_bitsPerPixel;
+        AllocatorProperties m_pProperties;
+
+        readonly object m_csPinLock = new object();
+        protected long m_rtStreamOffset = 0;
+        protected long m_rtStreamOffsetMax = -1;
+
+        #endregion
+
+        #region constants
+
+        public static HRESULT E_PROP_SET_UNSUPPORTED { get { unchecked { return (HRESULT)0x80070492; } } }
+        public static HRESULT E_PROP_ID_UNSUPPORTED { get { unchecked { return (HRESULT)0x80070490; } } }
+
+        #endregion
 
         public CanonSourceStream(string name, BaseSourceFilter source) : base(name, source)
         {
-            m_CameraHandler.CameraAdded += SDK_CameraAdded;
-            m_CameraHandler.LiveViewUpdated += SDK_LiveViewUpdated;
-            m_CameraHandler.ProgressChanged += SDK_ProgressChanged;
-            m_CameraHandler.CameraHasShutdown += SDK_CameraHasShutdown;
+            Controller.Initialize();
+            Controller.FrameReceived += FrameReceived;
+        }
+
+        private void FrameReceived(object sender, Bitmap bitmap)
+        {
+            try
+            {
+                if (m_lastFrame != null)
+                    m_lastFrame.Dispose();
+
+                m_lastFrame = bitmap;
+
+            }
+            catch { }
+        }
+
+        public override int Active()
+        {
+            Controller.Start();
+            return base.Active();
+        }
+
+        public override int Inactive()
+        {
+            HRESULT hr = (HRESULT)base.Inactive();
+            Controller.Stop();
+            return hr;
         }
 
         protected override int OnThreadCreate()
         {
-            // get the camera
-            m_CameraHandler.OpenSession(m_CameraHandler.MainCamera);
-            // open the session
-            m_CameraHandler.StartLiveView();
             return base.OnThreadCreate();
         }
 
         protected override int OnThreadDestroy()
         {
-            m_CameraHandler.StopLiveView();
-            // close the session
-            m_CameraHandler.CloseSession();
             return base.OnThreadDestroy();
         }
 
@@ -112,21 +145,21 @@ namespace CanonCaptureFilter
         /// <returns></returns>
         public override int GetMediaType(ref AMMediaType pMediaType)
         {
-            if (m_lastFrame == null)
-                return base.GetMediaType(ref pMediaType);
+            //if (m_lastFrame == null)
+            //    return base.GetMediaType(ref pMediaType);
 
             pMediaType.majorType = MediaType.Video;
             pMediaType.formatType = FormatType.VideoInfo;
             pMediaType.temporalCompression = false;
-
+            var FPS = Controller.FPS;
             VideoInfoHeader vih = new VideoInfoHeader
             {
-                AvgTimePerFrame = UNITS / 30
+                AvgTimePerFrame = UNITS / FPS
             };
             vih.BmiHeader.Compression = BI_RGB;
-            vih.BmiHeader.BitCount = (short)m_bitsPerPixel;
-            vih.BmiHeader.Width = m_width;
-            vih.BmiHeader.Height = m_height;
+            vih.BmiHeader.BitCount = (short)Controller.BitDepth;
+            vih.BmiHeader.Width = Controller.Width;
+            vih.BmiHeader.Height = Controller.Height;
             vih.BmiHeader.Planes = 1;
             vih.BmiHeader.ImageSize = vih.BmiHeader.Width * Math.Abs(vih.BmiHeader.Height) * vih.BmiHeader.BitCount / 8;
 
@@ -142,7 +175,7 @@ namespace CanonCaptureFilter
             return NOERROR;
         }
 
-        #region IAMBufferNegotiation Members
+        #region IAMBufferNegotiation 
 
         public int SuggestAllocatorProperties(AllocatorProperties pprop)
         {
@@ -170,7 +203,6 @@ namespace CanonCaptureFilter
             return NOERROR;
         }
 
-        AllocatorProperties m_pProperties;
         public int GetAllocatorProperties(AllocatorProperties pprop)
         {
             if (pprop == null) return E_POINTER;
@@ -213,52 +245,6 @@ namespace CanonCaptureFilter
 
         #endregion
 
-        #region camera event handlers
-
-        private void SDK_CameraHasShutdown(object sender, EventArgs e)
-        {
-        }
-
-        private void SDK_ProgressChanged(int Progress)
-        {
-        }
-
-
-        private void SDK_LiveViewUpdated(Stream stream)
-        {
-            try
-            {
-                try
-                {
-                    if (m_lastFrame != null)
-                        m_lastFrame.Dispose();
-                    m_width = 0;
-                    m_height = 0;
-                    m_bitsPerPixel = 0;
-                }
-                catch { }
-
-                m_lastFrame = new Bitmap(stream);
-
-                // figure out the size, bit depth etc?
-                m_width = m_lastFrame.Width;
-                m_height = m_lastFrame.Height;
-                m_bitsPerPixel = Image.GetPixelFormatSize(m_lastFrame.PixelFormat);
-
-
-            }
-            catch
-            {
-
-            }
-        }
-
-        private void SDK_CameraAdded()
-        {
-        }
-
-        #endregion
-
         #region IAMPushSource
 
         public int GetLatency(out long prtLatency)
@@ -287,14 +273,7 @@ namespace CanonCaptureFilter
             return NOERROR;
         }
 
-        public int SetPushSourceFlags([In] AMPushSourceFlags Flags)
-        {
-            return E_NOTIMPL;
-        }
-
-        readonly object m_csPinLock = new object();
-        protected long m_rtStreamOffset = 0;
-        protected long m_rtStreamOffsetMax = -1;
+        public int SetPushSourceFlags([In] AMPushSourceFlags Flags) => E_NOTIMPL;
 
         public int SetStreamOffset([In] long rtOffset)
         {
@@ -340,5 +319,36 @@ namespace CanonCaptureFilter
         }
 
         #endregion
+
+        #region IKsPropertySet Members
+
+        public int Set(Guid guidPropSet, int dwPropID, IntPtr pInstanceData, int cbInstanceData, IntPtr pPropData, int cbPropData) => E_NOTIMPL;
+
+        public int Get(Guid guidPropSet, int dwPropID, IntPtr pInstanceData, int cbInstanceData, IntPtr pPropData, int cbPropData, out int pcbReturned)
+        {
+            pcbReturned = Marshal.SizeOf(typeof(Guid));
+
+            if (guidPropSet != PropSetID.Pin) return E_PROP_SET_UNSUPPORTED;
+
+            if (dwPropID != (int)AMPropertyPin.Category) return E_PROP_ID_UNSUPPORTED;
+
+            if (pPropData == IntPtr.Zero) return NOERROR;
+
+            if (cbPropData < Marshal.SizeOf(typeof(Guid))) return E_UNEXPECTED;
+
+            Marshal.StructureToPtr(PinCategory.Capture, pPropData, false);
+            return NOERROR;
+        }
+
+        public int QuerySupported(Guid guidPropSet, int dwPropID, out KSPropertySupport pTypeSupport)
+        {
+            pTypeSupport = KSPropertySupport.Get;
+            if (guidPropSet != PropSetID.Pin) return E_PROP_SET_UNSUPPORTED;
+            if (dwPropID != (int)AMPropertyPin.Category) return E_PROP_ID_UNSUPPORTED;
+            return S_OK;
+        }
+
+        #endregion
+
     }
 }
